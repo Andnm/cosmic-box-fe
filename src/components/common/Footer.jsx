@@ -13,7 +13,6 @@ const Footer = () => {
 
   return (
     <footer className="bg-gradient-to-br from-blue-800 via-purple-800 to-fuchsia-800 text-white py-8 px-6 relative overflow-hidden">
-      {/* Cosmic stars effect */}
       <div className="absolute inset-0 opacity-20">
         {[...Array(20)].map((_, i) => (
           <div
@@ -32,7 +31,6 @@ const Footer = () => {
 
       <div className="max-w-6xl mx-auto px-4 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Brand Section */}
           <div className="text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start space-x-3 mb-6">
               <div className="relative">
@@ -65,7 +63,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Contact Section */}
           <div className="text-center">
             <h3 className="font-bold text-lg mb-6 text-blue-100">
               LIÊN HỆ VỚI CHÚNG MÌNH
@@ -90,7 +87,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Feedback Section */}
           <div className="text-center md:text-right">
             <h3 className="font-bold text-lg mb-6 text-purple-100">
               HỘP THƯ GÓP Ý
@@ -108,7 +104,6 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* Animation style */}
       <style jsx>{`
         @keyframes twinkle {
           0% {

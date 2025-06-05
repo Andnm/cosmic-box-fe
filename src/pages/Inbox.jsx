@@ -118,7 +118,6 @@ const Inbox = () => {
     setSelectedChat(chat);
   };
 
-  // Thêm hàm đóng modal chat
   const handleCloseChat = () => {
     setSelectedChat(null);
   };
@@ -265,7 +264,6 @@ const Inbox = () => {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   whileHover={{ scale: 1.05 }}
                 >
-                  {/* Nút 3 chấm */}
                   <div className="absolute top-3 right-3 opacity-100 transition-opacity">
                     <div className="relative">
                       <button
@@ -280,7 +278,6 @@ const Inbox = () => {
                         <MoreHorizontal className="text-white/70" size={20} />
                       </button>
 
-                      {/* Dropdown menu */}
                       {selectedMenu === letter.id && (
                         <motion.div
                           className="absolute right-0 mt-2 w-48 bg-gray-800/90 backdrop-blur-md rounded-lg shadow-lg z-10 border border-white/10"
@@ -293,7 +290,6 @@ const Inbox = () => {
                               className="flex items-center w-full px-4 py-2 text-sm text-white/90 hover:bg-white/10 transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // Xử lý xóa trò chuyện
                                 console.log("Xóa trò chuyện", letter.id);
                                 setSelectedMenu(null);
                               }}
@@ -304,7 +300,6 @@ const Inbox = () => {
                               className="flex items-center w-full px-4 py-2 text-sm text-white/90 hover:bg-white/10 transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // Xử lý tắt thông báo
                                 console.log("Tắt thông báo", letter.id);
                                 setSelectedMenu(null);
                               }}
@@ -315,7 +310,6 @@ const Inbox = () => {
                               className="flex items-center w-full px-4 py-2 text-sm text-white/90 hover:bg-white/10 transition-colors"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // Xử lý báo cáo người dùng
                                 console.log("Báo cáo người dùng", letter.id);
                                 setSelectedMenu(null);
                               }}
@@ -328,7 +322,6 @@ const Inbox = () => {
                     </div>
                   </div>
 
-                  {/* Nội dung chat */}
                   <div
                     className="h-full flex flex-col justify-between"
                     onClick={() =>
@@ -339,7 +332,6 @@ const Inbox = () => {
                       })
                     }
                   >
-                    {/* Phần trên: Avatar và tên */}
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center">
                         <span className="text-white font-medium">
@@ -356,7 +348,6 @@ const Inbox = () => {
                       </div>
                     </div>
 
-                    {/* Phần giữa: Tin nhắn mới nhất */}
                     <div className="flex-1 my-3 overflow-hidden">
                       <div className="bg-white/10 rounded-lg p-3 h-full">
                         <p className="text-white/80 text-sm line-clamp-3">
@@ -379,7 +370,6 @@ const Inbox = () => {
                       </div>
                     </div>
 
-                    {/* Phần dưới: Thông tin phụ */}
                     <div className="flex justify-between items-center">
                       <p className="text-cosmic-purple/70 text-xs">
                         {letter.unreadCount > 0 ? (

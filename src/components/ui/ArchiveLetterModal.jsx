@@ -49,7 +49,6 @@ const ArchiveLetterModal = ({ isOpen, onClose, letter }) => {
           animate="visible"
           exit="hidden"
         >
-          {/* Backdrop */}
           <motion.div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             onClick={onClose}
@@ -58,7 +57,6 @@ const ArchiveLetterModal = ({ isOpen, onClose, letter }) => {
             exit={{ opacity: 0 }}
           />
 
-          {/* Modal Content */}
           <motion.div
             className="relative bg-white/10 backdrop-blur-md rounded-3xl border border-cosmic-purple/30 max-w-2xl w-full max-h-[80vh] overflow-hidden"
             variants={modalVariants}
@@ -70,7 +68,6 @@ const ArchiveLetterModal = ({ isOpen, onClose, letter }) => {
               backgroundSize: "20px 20px",
             }}
           >
-            {/* Floating Decorative Elements */}
             <motion.div 
               className="absolute top-4 right-16 flex items-center space-x-2"
               animate={{ 
@@ -115,7 +112,6 @@ const ArchiveLetterModal = ({ isOpen, onClose, letter }) => {
               transition={{ duration: 3, repeat: Infinity }}
             />
 
-            {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-white/20">
               <div className="flex items-center space-x-3">
                 <motion.div
@@ -149,7 +145,6 @@ const ArchiveLetterModal = ({ isOpen, onClose, letter }) => {
               </motion.button>
             </div>
 
-            {/* Content */}
             <div className="p-6 overflow-y-auto max-h-[60vh]">
               <motion.div
                 className="space-y-6"
@@ -157,7 +152,6 @@ const ArchiveLetterModal = ({ isOpen, onClose, letter }) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
               >
-                {/* Letter Content */}
                 <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
                   <h4 className="text-lg font-semibold text-cosmic-purple mb-4 flex items-center gap-2">
                     <Sparkles className="text-purple-400" size={18} />
@@ -169,7 +163,6 @@ const ArchiveLetterModal = ({ isOpen, onClose, letter }) => {
                   </div>
                 </div>
 
-                {/* Metadata */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
                     <h5 className="font-medium text-cosmic-purple mb-2">Thông tin</h5>
@@ -213,7 +206,6 @@ const ArchiveLetterModal = ({ isOpen, onClose, letter }) => {
               </motion.div>
             </div>
 
-            {/* Footer */}
             <div className="p-6 border-t border-white/20 bg-white/5">
               <div className="flex justify-end space-x-3">
                 <motion.button

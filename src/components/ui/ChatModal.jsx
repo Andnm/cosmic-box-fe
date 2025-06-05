@@ -39,7 +39,6 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
         [selectedChat.id]: [...prev[selectedChat.id], newMessage]
       }));
       
-      // Cập nhật last message trong danh sách chat
       setChats(prev => 
         prev.map(chat => 
           chat.id === selectedChat.id 
@@ -54,7 +53,6 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
 
   const handleChatSelect = (chat) => {
     setSelectedChat(chat);
-    // Reset unread count khi chọn chat
     setChats(prev => 
       prev.map(c => 
         c.id === chat.id 
@@ -74,7 +72,6 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
         >
-          {/* Nút đóng modal */}
           <button
             onClick={onClose}
             className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all"
@@ -84,7 +81,6 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
           </button>
 
           <div className="flex h-full">
-            {/* Danh sách chat bên trái */}
             <div className="w-1/3 border-r border-white/10 bg-gradient-to-b from-indigo-900/20 to-transparent p-4 overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
@@ -142,11 +138,9 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
               </div>
             </div>
 
-            {/* Nội dung chat bên phải */}
             <div className="w-2/3 flex flex-col bg-gradient-to-b from-purple-900/20 to-transparent">
               {selectedChat ? (
                 <>
-                  {/* Header chat */}
                   <div className="p-4 border-b border-white/10 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center">
@@ -164,7 +158,6 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
                     </div>
                   </div>
 
-                  {/* Nội dung tin nhắn */}
                   <div className="flex-1 p-4 overflow-y-auto bg-gradient-to-b from-transparent via-purple-900/10 to-transparent">
                     <div className="space-y-4">
                       {messages[selectedChat.id]?.map((msg) => (
@@ -195,7 +188,6 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
                     </div>
                   </div>
 
-                  {/* Input gửi tin nhắn */}
                   <div className="p-4 border-t border-white/10">
                     <div className="flex items-center space-x-3">
                       <input

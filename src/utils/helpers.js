@@ -1,4 +1,3 @@
-// Date formatting utilities
 export const formatDate = (date, format = 'DD/MM/YYYY') => {
   const d = new Date(date);
   const day = String(d.getDate()).padStart(2, '0');
@@ -30,7 +29,6 @@ export const getRelativeTime = (date) => {
   return formatDate(date);
 };
 
-// String utilities
 export const truncateText = (text, maxLength = 100) => {
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength) + '...';
@@ -49,7 +47,6 @@ export const slugify = (text) => {
     .replace(/^-+|-+$/g, '');
 };
 
-// Array utilities
 export const groupBy = (array, key) => {
   return array.reduce((result, item) => {
     const group = item[key];
@@ -74,7 +71,6 @@ export const sortBy = (array, key, direction = 'asc') => {
   });
 };
 
-// Validation utilities
 export const validateEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
@@ -85,7 +81,6 @@ export const validatePhone = (phone) => {
   return phoneRegex.test(phone);
 };
 
-// Animation utilities
 export const fadeInVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0 },
@@ -104,7 +99,6 @@ export const scaleVariants = {
   exit: { scale: 0.8, opacity: 0 }
 };
 
-// Local storage utilities
 export const getFromStorage = (key, defaultValue = null) => {
   try {
     const item = localStorage.getItem(key);
@@ -135,7 +129,6 @@ export const removeFromStorage = (key) => {
   }
 };
 
-// Color utilities
 export const getRandomColor = () => {
   const colors = [
     'bg-pink-400',
@@ -152,14 +145,12 @@ export const getRandomColor = () => {
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
-// Text processing
 export const highlightText = (text, searchTerm) => {
   if (!searchTerm) return text;
   const regex = new RegExp(`(${searchTerm})`, 'gi');
   return text.replace(regex, '<mark class="bg-yellow-200">$1</mark>');
 };
 
-// API utilities
 export const createApiUrl = (endpoint, params = {}) => {
   const url = new URL(endpoint, process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001');
   Object.keys(params).forEach(key => {
@@ -170,7 +161,6 @@ export const createApiUrl = (endpoint, params = {}) => {
   return url.toString();
 };
 
-// Error handling
 export const handleApiError = (error) => {
   if (error.response) {
     return error.response.data.message || 'Đã xảy ra lỗi từ server';

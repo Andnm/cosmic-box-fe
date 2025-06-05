@@ -150,7 +150,6 @@ const ConnectPayment = () => {
         </div>
       </div>
 
-      {/* Message Section */}
       <motion.div
         className="max-w-4xl mx-auto mt-12"
         initial={{ opacity: 0, y: 30 }}
@@ -158,7 +157,6 @@ const ConnectPayment = () => {
         transition={{ duration: 0.6, delay: 0.4 }}
       >
         <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-md rounded-3xl p-8 border border-white/30 relative overflow-hidden">
-          {/* Decorative elements */}
           <motion.div
             className="absolute top-6 right-8 w-8 h-8 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full opacity-60"
             animate={{ y: [-5, 5, -5], rotate: [0, 180, 360] }}
@@ -195,7 +193,6 @@ const ConnectPayment = () => {
               />
             </div>
 
-            {/* Character counter and send button */}
             <div className="bg-white/10 px-6 py-4 flex items-center justify-between border-t border-white/20">
               <span className="text-cosmic-purple/60 text-sm">
                 {message.length}/500 ký tự
@@ -213,7 +210,6 @@ const ConnectPayment = () => {
             </div>
           </div>
 
-          {/* Quick message templates */}
           <div className="mt-6">
             <p className="text-cosmic-purple/70 text-sm mb-3 text-center">
               Gợi ý tin nhắn nhanh:

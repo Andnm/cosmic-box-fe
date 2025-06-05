@@ -236,7 +236,6 @@ const Archive = () => {
         </motion.div>
       </div>
 
-      {/* Modal */}
       <AnimatePresence>
         {selectedLetter && (
           <motion.div
@@ -254,7 +253,6 @@ const Archive = () => {
               transition={{ duration: 0.4 }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Main content */}
               <motion.div
                 className="relative bg-white/95 backdrop-blur-md rounded-[3rem] p-16 border-2 border-cosmic-purple/20 shadow-2xl min-h-[60vh] flex items-center justify-center"
                 style={{
@@ -265,7 +263,6 @@ const Archive = () => {
                 whileHover={{ scale: 1.02, rotateY: 2, rotateX: 1 }}
                 transition={{ duration: 0.4 }}
               >
-                {/* Close button */}
                 <button
                   onClick={closeModal}
                   className="absolute top-6 right-6 w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-lg"
@@ -274,7 +271,6 @@ const Archive = () => {
                 </button>
 
                 <div className="text-center w-full max-w-3xl">
-                  {/* Date and status */}
                   <div className="mb-8">
                     <p className="text-2xl font-bold text-cosmic-purple mb-2">
                       {selectedLetter.date}
@@ -290,7 +286,6 @@ const Archive = () => {
                     </span>
                   </div>
 
-                  {/* Content */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}

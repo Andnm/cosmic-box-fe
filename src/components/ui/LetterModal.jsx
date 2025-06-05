@@ -37,7 +37,6 @@ const LetterModal = ({ letter, onClose, onAccept }) => {
           onClick={(e) => e.stopPropagation()}
         >
 
-          {/* Main content */}
           <motion.div
             className="relative bg-white/95 backdrop-blur-md rounded-[3rem] border-2 border-cosmic-purple/20 shadow-2xl min-h-[70vh] overflow-hidden"
             style={{
@@ -46,7 +45,6 @@ const LetterModal = ({ letter, onClose, onAccept }) => {
               backgroundSize: "25px 25px",
             }}
           >
-            {/* Decorative floating elements */}
             <motion.div
               className="absolute top-12 right-16 w-12 h-12 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full opacity-60"
               animate={{ y: [-10, 10, -10], rotate: [0, 180, 360] }}
@@ -65,7 +63,6 @@ const LetterModal = ({ letter, onClose, onAccept }) => {
               <Star className="text-yellow-400 fill-current opacity-60" size={32} />
             </motion.div>
 
-            {/* Close button */}
             <button
               onClick={onClose}
               className="absolute top-6 right-6 w-12 h-12 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-lg z-10"
@@ -73,7 +70,6 @@ const LetterModal = ({ letter, onClose, onAccept }) => {
               <X size={24} />
             </button>
 
-            {/* Header */}
             <div className="text-center pt-16 pb-8 px-8 border-b border-cosmic-purple/10">
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
@@ -93,7 +89,6 @@ const LetterModal = ({ letter, onClose, onAccept }) => {
               </motion.div>
             </div>
 
-            {/* Content */}
             <div className="px-16 py-12">
               <motion.div
                 className="bg-gradient-to-br from-blue-50/80 to-purple-50/80 backdrop-blur-sm rounded-[2rem] p-12 border border-cosmic-purple/10 min-h-[300px] relative overflow-hidden"
@@ -101,7 +96,6 @@ const LetterModal = ({ letter, onClose, onAccept }) => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
               >
-                {/* Decorative pattern */}
                 <div className="absolute inset-0 opacity-10">
                   <div 
                     className="w-full h-full"
@@ -153,7 +147,6 @@ const LetterModal = ({ letter, onClose, onAccept }) => {
                
               </motion.div>
 
-              {/* Action buttons */}
               <motion.div
                 className="flex space-x-6 mt-12 justify-center"
                 initial={{ opacity: 0, y: 20 }}

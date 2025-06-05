@@ -40,7 +40,6 @@ const Auth = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle form submission logic here
     console.log('Form submitted:', formData);
   };
 
@@ -57,7 +56,6 @@ const Auth = () => {
   return (
     <div className="min-h-screen pt-20 pb-16 px-6">
       <div className="max-w-4xl mx-auto">
-        {/* Header Section */}
         <motion.div
           className="text-center mb-12"
           {...fadeInUp}
@@ -81,7 +79,6 @@ const Auth = () => {
           </p>
         </motion.div>
 
-        {/* Main Auth Form */}
         <motion.div
           className="relative bg-white/10 backdrop-blur-md rounded-3xl p-12 border border-cosmic-purple/30 overflow-hidden"
           initial={{ opacity: 0, scale: 0.9 }}
@@ -92,7 +89,6 @@ const Auth = () => {
             backgroundSize: "20px 20px",
           }}
         >
-          {/* Floating Decorative Elements */}
           <motion.div 
             className="absolute top-8 right-8 flex items-center space-x-2"
             animate={{ 
@@ -148,7 +144,6 @@ const Auth = () => {
             />
           </motion.div>
 
-          {/* Additional floating elements */}
           <motion.div
             className="absolute top-20 left-16 w-2 h-2 bg-yellow-400 rounded-full opacity-70"
             animate={{ 
@@ -191,9 +186,7 @@ const Auth = () => {
             <Heart className="text-pink-300 fill-current opacity-50" size={18} />
           </motion.div>
 
-          {/* Auth Form Content */}
           <div className="relative z-10 max-w-md mx-auto">
-            {/* Auth Toggle */}
             <div className="flex bg-white/20 backdrop-blur-sm rounded-full p-1 mb-8 border border-white/30">
               <motion.button
                 className={`flex-1 py-3 px-6 rounded-full font-medium transition-all duration-300 relative ${
@@ -234,7 +227,6 @@ const Auth = () => {
               </motion.button>
             </div>
 
-            {/* Form */}
             <AnimatePresence mode="wait">
               <motion.form
                 key={isLogin ? 'login' : 'register'}
@@ -245,7 +237,6 @@ const Auth = () => {
                 exit={{ opacity: 0, x: isLogin ? 50 : -50 }}
                 transition={{ duration: 0.3 }}
               >
-                {/* Full Name Field (Register only) */}
                 {!isLogin && (
                   <motion.div
                     className="relative"
@@ -269,7 +260,6 @@ const Auth = () => {
                   </motion.div>
                 )}
 
-                {/* Email Field */}
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60" size={20} />
                   <input
@@ -283,7 +273,6 @@ const Auth = () => {
                   />
                 </div>
 
-                {/* Password Field */}
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60" size={20} />
                   <input
@@ -304,7 +293,6 @@ const Auth = () => {
                   </button>
                 </div>
 
-                {/* Confirm Password Field (Register only) */}
                 {!isLogin && (
                   <motion.div
                     className="relative"
@@ -335,7 +323,6 @@ const Auth = () => {
                   </motion.div>
                 )}
 
-                {/* Forgot Password (Login only) */}
                 {isLogin && (
                   <div className="text-right">
                     <Link 
@@ -347,7 +334,6 @@ const Auth = () => {
                   </div>
                 )}
 
-                {/* Submit Button */}
                 <motion.button
                   type="submit"
                   className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 rounded-2xl font-semibold text-lg transition-all duration-300 shadow-lg flex items-center justify-center space-x-2"
@@ -358,7 +344,6 @@ const Auth = () => {
                   <ArrowRight size={20} />
                 </motion.button>
 
-                {/* Terms and Conditions (Register only) */}
                 {!isLogin && (
                   <motion.p
                     className="text-cosmic-purple/60 text-sm text-center leading-relaxed"
@@ -382,7 +367,6 @@ const Auth = () => {
           </div>
         </motion.div>
 
-        {/* Additional Info Section */}
         <motion.div
           className="mt-12 text-center"
           initial={{ opacity: 0, y: 30 }}

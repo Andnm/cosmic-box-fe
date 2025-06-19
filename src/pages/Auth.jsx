@@ -1,34 +1,34 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
-import { 
-  Star, 
-  Sparkles, 
-  Heart, 
-  Eye, 
-  EyeOff, 
-  Mail, 
-  Lock, 
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Star,
+  Sparkles,
+  Heart,
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
   User,
   ArrowRight,
   ChevronLeft,
-  Loader
-} from 'lucide-react';
-import { useNotifications } from '../context/NotificationContext';
-import { useAuth } from '../context/AuthContext';
+  Loader,
+} from "lucide-react";
+import { useNotifications } from "../context/NotificationContext";
+import { useAuth } from "../context/AuthContext";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    username: '',
-    phone: ''
+    email: "",
+    password: "",
+    confirmPassword: "",
+    username: "",
+    phone: "",
   });
 
   const { login, register } = useAuth();
@@ -44,29 +44,29 @@ const Auth = () => {
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
     // Clear error when user starts typing
-    if (error) setError('');
+    if (error) setError("");
   };
 
   const validateForm = () => {
     if (!formData.email || !formData.password) {
-      setError('Vui lòng điền đầy đủ thông tin');
+      setError("Vui lòng điền đầy đủ thông tin");
       return false;
     }
 
     if (!isLogin) {
       if (!formData.username) {
-        setError('Vui lòng nhập tên người dùng');
+        setError("Vui lòng nhập tên người dùng");
         return false;
       }
       if (formData.password.length < 6) {
-        setError('Mật khẩu phải có ít nhất 6 ký tự');
+        setError("Mật khẩu phải có ít nhất 6 ký tự");
         return false;
       }
       if (formData.password !== formData.confirmPassword) {
-        setError('Mật khẩu xác nhận không khớp');
+        setError("Mật khẩu xác nhận không khớp");
         return false;
       }
     }
@@ -76,39 +76,45 @@ const Auth = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       let result;
-      
+
       if (isLogin) {
         result = await login(formData.email, formData.password);
+
+        console.log("result: ", result);
       } else {
         result = await register({
           username: formData.username,
           email: formData.email,
           password: formData.password,
-          phone: formData.phone
+          phone: formData.phone,
         });
       }
 
       if (result.success) {
         addNotification({
-          type: 'success',
-          title: isLogin ? 'Đăng nhập thành công!' : 'Đăng ký thành công!',
-          content: `Chào mừng ${result.user.username} đến với CosmicBox`
+          type: "success",
+          title: isLogin ? "Đăng nhập thành công!" : "Đăng ký thành công!",
+          content: `Chào mừng ${result.user.username} đến với CosmicBox`,
         });
-        navigate('/');
+        if (result.user.roleName === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
       } else {
         setError(result.error);
       }
     } catch (error) {
-      setError('Có lỗi xảy ra, vui lòng thử lại');
-      console.error('Auth error:', error);
+      setError("Có lỗi xảy ra, vui lòng thử lại");
+      console.error("Auth error:", error);
     } finally {
       setLoading(false);
     }
@@ -117,38 +123,34 @@ const Auth = () => {
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
     setFormData({
-      email: '',
-      password: '',
-      confirmPassword: '',
-      username: '',
-      phone: ''
+      email: "",
+      password: "",
+      confirmPassword: "",
+      username: "",
+      phone: "",
     });
-    setError('');
+    setError("");
   };
 
   return (
     <div className="min-h-screen pt-20 pb-16 px-6">
       <div className="max-w-4xl mx-auto">
-        <motion.div
-          className="text-center mb-12"
-          {...fadeInUp}
-        >
-          <Link 
-            to="/" 
+        <motion.div className="text-center mb-12" {...fadeInUp}>
+          <Link
+            to="/"
             className="inline-flex items-center space-x-2 text-cosmic-purple hover:text-purple-600 transition-colors mb-8"
           >
             <ChevronLeft size={24} />
             <span className="font-medium">Quay về trang chủ</span>
           </Link>
-          
+
           <h1 className="text-5xl font-bold text-cosmic-purple mb-6 pearl-jean-style">
-            {isLogin ? 'CHÀO BẠN!' : 'THAM GIA CÙNG CHÚNG MÌNH!'}
+            {isLogin ? "CHÀO BẠN!" : "THAM GIA CÙNG CHÚNG MÌNH!"}
           </h1>
           <p className="text-cosmic-purple/80 text-lg max-w-2xl mx-auto">
-            {isLogin 
-              ? 'Chào mừng bạn đến với vũ trụ của chúng mình. Đăng nhập để bắt đầu nhé.'
-              : 'Tạo tài khoản để bắt đầu hành trình chia sẻ cảm xúc cùng CosmicBox'
-            }
+            {isLogin
+              ? "Chào mừng bạn đến với vũ trụ của chúng mình. Đăng nhập để bắt đầu nhé."
+              : "Tạo tài khoản để bắt đầu hành trình chia sẻ cảm xúc cùng CosmicBox"}
           </p>
         </motion.div>
 
@@ -158,24 +160,25 @@ const Auth = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           style={{
-            backgroundImage: "linear-gradient(rgba(74, 27, 92, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(74, 27, 92, 0.05) 1px, transparent 1px)",
+            backgroundImage:
+              "linear-gradient(rgba(74, 27, 92, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(74, 27, 92, 0.05) 1px, transparent 1px)",
             backgroundSize: "20px 20px",
           }}
         >
           {/* Animated decorations - keeping original code */}
-          <motion.div 
+          <motion.div
             className="absolute top-8 right-8 flex items-center space-x-2"
-            animate={{ 
+            animate={{
               y: [-5, 5, -5],
-              rotate: [0, 10, -10, 0]
+              rotate: [0, 10, -10, 0],
             }}
-            transition={{ 
-              duration: 4, 
+            transition={{
+              duration: 4,
               repeat: Infinity,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
           >
-            <motion.div 
+            <motion.div
               className="w-4 h-4 bg-pink-500 rounded-full"
               animate={{ scale: [1, 1.3, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -187,32 +190,32 @@ const Auth = () => {
               <Star className="text-blue-600 fill-current" size={32} />
             </motion.div>
           </motion.div>
-          
-          <motion.div 
+
+          <motion.div
             className="absolute bottom-8 left-8 flex items-center space-x-2"
-            animate={{ 
+            animate={{
               x: [-3, 3, -3],
-              y: [0, -8, 0]
+              y: [0, -8, 0],
             }}
-            transition={{ 
-              duration: 3.5, 
+            transition={{
+              duration: 3.5,
               repeat: Infinity,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
           >
-            <motion.div 
+            <motion.div
               className="w-6 h-6 bg-purple-500 rounded-full"
-              animate={{ 
+              animate={{
                 scale: [1, 1.2, 1],
-                rotate: [0, 180, 360]
+                rotate: [0, 180, 360],
               }}
               transition={{ duration: 3, repeat: Infinity }}
             />
-            <motion.div 
+            <motion.div
               className="w-3 h-3 bg-pink-400 rounded-full"
-              animate={{ 
+              animate={{
                 y: [-2, 2, -2],
-                scale: [0.8, 1.1, 0.8]
+                scale: [0.8, 1.1, 0.8],
               }}
               transition={{ duration: 2.5, repeat: Infinity }}
             />
@@ -221,28 +224,28 @@ const Auth = () => {
           {/* Other decorative elements - keeping original */}
           <motion.div
             className="absolute top-20 left-16 w-2 h-2 bg-yellow-400 rounded-full opacity-70"
-            animate={{ 
+            animate={{
               y: [-10, 10, -10],
               x: [-5, 5, -5],
-              scale: [0.5, 1, 0.5]
+              scale: [0.5, 1, 0.5],
             }}
             transition={{ duration: 6, repeat: Infinity }}
           />
-          
+
           <motion.div
             className="absolute bottom-20 right-20 w-3 h-3 bg-blue-400 rounded-full opacity-60"
-            animate={{ 
+            animate={{
               rotate: [0, 360],
-              scale: [0.8, 1.3, 0.8]
+              scale: [0.8, 1.3, 0.8],
             }}
             transition={{ duration: 5, repeat: Infinity }}
           />
 
           <motion.div
             className="absolute top-1/2 left-12"
-            animate={{ 
+            animate={{
               rotate: [0, 180, 360],
-              y: [-8, 8, -8]
+              y: [-8, 8, -8],
             }}
             transition={{ duration: 7, repeat: Infinity }}
           >
@@ -251,14 +254,17 @@ const Auth = () => {
 
           <motion.div
             className="absolute top-1/3 right-1/4"
-            animate={{ 
+            animate={{
               x: [-6, 6, -6],
               rotate: [0, -180, 0],
-              scale: [0.8, 1.2, 0.8]
+              scale: [0.8, 1.2, 0.8],
             }}
             transition={{ duration: 4.5, repeat: Infinity }}
           >
-            <Heart className="text-pink-300 fill-current opacity-50" size={18} />
+            <Heart
+              className="text-pink-300 fill-current opacity-50"
+              size={18}
+            />
           </motion.div>
 
           <div className="relative z-10 max-w-md mx-auto">
@@ -266,7 +272,7 @@ const Auth = () => {
             <div className="flex bg-white/20 backdrop-blur-sm rounded-full p-1 mb-8 border border-white/30">
               <motion.button
                 className={`flex-1 py-3 px-6 rounded-full font-medium transition-all duration-300 relative ${
-                  isLogin ? 'text-cosmic-purple' : 'text-white'
+                  isLogin ? "text-cosmic-purple" : "text-white"
                 }`}
                 onClick={() => !isLogin && toggleAuthMode()}
                 whileHover={{ scale: 1.02 }}
@@ -282,10 +288,10 @@ const Auth = () => {
                 )}
                 <span className="relative z-10">Đăng nhập</span>
               </motion.button>
-              
+
               <motion.button
                 className={`flex-1 py-3 px-6 rounded-full font-medium transition-all duration-300 relative ${
-                  !isLogin ? 'text-cosmic-purple' : 'text-white'
+                  !isLogin ? "text-cosmic-purple" : "text-white"
                 }`}
                 onClick={() => isLogin && toggleAuthMode()}
                 whileHover={{ scale: 1.02 }}
@@ -320,7 +326,7 @@ const Auth = () => {
 
             <AnimatePresence mode="wait">
               <motion.form
-                key={isLogin ? 'login' : 'register'}
+                key={isLogin ? "login" : "register"}
                 onSubmit={handleSubmit}
                 className="space-y-6"
                 initial={{ opacity: 0, x: isLogin ? -50 : 50 }}
@@ -332,12 +338,15 @@ const Auth = () => {
                   <motion.div
                     className="relative"
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
+                    animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3 }}
                   >
                     <div className="relative">
-                      <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60" size={20} />
+                      <User
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60"
+                        size={20}
+                      />
                       <input
                         type="text"
                         name="username"
@@ -352,7 +361,10 @@ const Auth = () => {
                 )}
 
                 <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60" size={20} />
+                  <Mail
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60"
+                    size={20}
+                  />
                   <input
                     type="email"
                     name="email"
@@ -368,12 +380,15 @@ const Auth = () => {
                   <motion.div
                     className="relative"
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
+                    animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3, delay: 0.1 }}
                   >
                     <div className="relative">
-                      <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60" size={20} />
+                      <User
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60"
+                        size={20}
+                      />
                       <input
                         type="tel"
                         name="phone"
@@ -387,7 +402,10 @@ const Auth = () => {
                 )}
 
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60" size={20} />
+                  <Lock
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60"
+                    size={20}
+                  />
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password"
@@ -410,12 +428,15 @@ const Auth = () => {
                   <motion.div
                     className="relative"
                     initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
+                    animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
                     transition={{ duration: 0.3, delay: 0.2 }}
                   >
                     <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60" size={20} />
+                      <Lock
+                        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60"
+                        size={20}
+                      />
                       <input
                         type={showConfirmPassword ? "text" : "password"}
                         name="confirmPassword"
@@ -427,10 +448,16 @@ const Auth = () => {
                       />
                       <button
                         type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
                         className="absolute right-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60 hover:text-cosmic-purple transition-colors"
                       >
-                        {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        {showConfirmPassword ? (
+                          <EyeOff size={20} />
+                        ) : (
+                          <Eye size={20} />
+                        )}
                       </button>
                     </div>
                   </motion.div>
@@ -438,8 +465,8 @@ const Auth = () => {
 
                 {isLogin && (
                   <div className="text-right">
-                    <Link 
-                      to="/forgot-password" 
+                    <Link
+                      to="/forgot-password"
                       className="text-cosmic-purple/70 hover:text-cosmic-purple text-sm transition-colors"
                     >
                       Quên mật khẩu?
@@ -457,11 +484,13 @@ const Auth = () => {
                   {loading ? (
                     <>
                       <Loader className="animate-spin" size={20} />
-                      <span>{isLogin ? 'ĐANG ĐĂNG NHẬP...' : 'ĐANG ĐĂNG KÝ...'}</span>
+                      <span>
+                        {isLogin ? "ĐANG ĐĂNG NHẬP..." : "ĐANG ĐĂNG KÝ..."}
+                      </span>
                     </>
                   ) : (
                     <>
-                      <span>{isLogin ? 'ĐĂNG NHẬP' : 'ĐĂNG KÝ'}</span>
+                      <span>{isLogin ? "ĐĂNG NHẬP" : "ĐĂNG KÝ"}</span>
                       <ArrowRight size={20} />
                     </>
                   )}
@@ -474,14 +503,20 @@ const Auth = () => {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2 }}
                   >
-                    Bằng việc đăng ký, bạn đồng ý với{' '}
-                    <Link to="/#" className="text-cosmic-purple hover:underline">
+                    Bằng việc đăng ký, bạn đồng ý với{" "}
+                    <Link
+                      to="/#"
+                      className="text-cosmic-purple hover:underline"
+                    >
                       Điều khoản sử dụng
-                    </Link>{' '}
-                    và{' '}
-                    <Link to="/#" className="text-cosmic-purple hover:underline">
+                    </Link>{" "}
+                    và{" "}
+                    <Link
+                      to="/#"
+                      className="text-cosmic-purple hover:underline"
+                    >
                       Chính sách bảo mật
-                    </Link>{' '}
+                    </Link>{" "}
                     của chúng tôi.
                   </motion.p>
                 )}

@@ -1,16 +1,22 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './components/common/Layout';
-import ProtectedRoute from './components/common/ProtectedRoute';
-import Home from './pages/Home';
-import Inbox from './pages/Inbox';
-import Archive from './pages/Archive';
-import WriteLetter from './pages/WriteLetter';
-import Auth from './pages/Auth';
-import ConnectPayment from './pages/ConnectPayment';
-import './App.css';
-import { AuthProvider } from './context/AuthContext';
-import { NotificationProvider } from './context/NotificationContext';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Layout from "./components/common/Layout";
+import ProtectedRoute from "./components/common/ProtectedRoute";
+import Home from "./pages/Home";
+import Inbox from "./pages/Inbox";
+import Archive from "./pages/Archive";
+import WriteLetter from "./pages/WriteLetter";
+import Auth from "./pages/Auth";
+import ConnectPayment from "./pages/ConnectPayment";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminPendingLetters from "./pages/admin/AdminPendingLetters";
+import AdminAllLetters from "./pages/admin/AdminAllLetters";
+import AdminPayments from "./pages/admin/AdminPayments";
+import AdminUsers from "./pages/admin/AdminUsers";
+import "./App.css";
+import { AuthProvider } from "./context/AuthContext";
+import { NotificationProvider } from "./context/NotificationContext";
+import AdminLayout from "./components/common/AdminLayout";
 
 function App() {
   return (
@@ -18,37 +24,137 @@ function App() {
       <div className="App cosmic-bg">
         <AuthProvider>
           <NotificationProvider>
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/auth" element={<Auth />} />
-                
-                {/* Protected Routes */}
-                <Route path="/inbox" element={
+            <Routes>
+              {/* Public Routes */}
+              <Route
+                path="/auth"
+                element={
+                  <Layout>
+                    <Auth />
+                  </Layout>
+                }
+              />
+
+              {/* User Routes */}
+              <Route
+                path="/"
+                element={
+                  <Layout>
+                    <Home />
+                  </Layout>
+                }
+              />
+
+              <Route
+                path="/inbox"
+                element={
+                  <Layout>
+                    <ProtectedRoute>
+                      <Inbox />
+                    </ProtectedRoute>
+                  </Layout>
+                }
+              />
+
+              <Route
+                path="/archive"
+                element={
+                  <Layout>
+                    <ProtectedRoute>
+                      <Archive />
+                    </ProtectedRoute>
+                  </Layout>
+                }
+              />
+
+              <Route
+                path="/write"
+                element={
+                  <Layout>
+                    <ProtectedRoute>
+                      <WriteLetter />
+                    </ProtectedRoute>
+                  </Layout>
+                }
+              />
+
+              <Route
+                path="/connect-payment"
+                element={
+                  <Layout>
+                    <ProtectedRoute>
+                      <ConnectPayment />
+                    </ProtectedRoute>
+                  </Layout>
+                }
+              />
+
+              {/* Admin Routes */}
+              <Route
+                path="/admin"
+                element={
                   <ProtectedRoute>
-                    <Inbox />
+                    <AdminLayout>
+                      <AdminDashboard />
+                    </AdminLayout>
                   </ProtectedRoute>
-                } />
-                <Route path="/archive" element={
+                }
+              />
+
+              <Route
+                path="/admin/pending-letters"
+                element={
                   <ProtectedRoute>
-                    <Archive />
+                    <AdminLayout>
+                      <AdminPendingLetters />
+                    </AdminLayout>
                   </ProtectedRoute>
-                } />
-                <Route path="/write" element={
+                }
+              />
+
+              <Route
+                path="/admin/letters"
+                element={
                   <ProtectedRoute>
-                    <WriteLetter />
+                    <AdminLayout>
+                      <AdminAllLetters />
+                    </AdminLayout>
                   </ProtectedRoute>
-                } />
-                <Route path="/connect-payment" element={
+                }
+              />
+
+              <Route
+                path="/admin/payments"
+                element={
                   <ProtectedRoute>
-                    <ConnectPayment />
+                    <AdminLayout>
+                      <AdminPayments />
+                    </AdminLayout>
                   </ProtectedRoute>
-                } />
-                
-                {/* Catch all route */}
-                <Route path="*" element={<Home />} />
-              </Routes>
-            </Layout>
+                }
+              />
+
+              <Route
+                path="/admin/users"
+                element={
+                  <ProtectedRoute>
+                    <AdminLayout>
+                      <AdminUsers />
+                    </AdminLayout>
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Catch all route */}
+              <Route
+                path="*"
+                element={
+                  <Layout>
+                    <Home />
+                  </Layout>
+                }
+              />
+            </Routes>
           </NotificationProvider>
         </AuthProvider>
       </div>

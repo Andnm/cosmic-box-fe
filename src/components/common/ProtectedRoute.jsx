@@ -1,10 +1,10 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import LoadingSpinner from './LoadingSpinner';
-import { useAuth } from '../../context/AuthContext';
+import React from "react";
+import { Navigate } from "react-router-dom";
+import LoadingSpinner from "./LoadingSpinner";
+import { useAuth } from "../../context/AuthContext";
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, isAdmin } = useAuth();
 
   if (loading) {
     return <LoadingSpinner />;
@@ -13,6 +13,7 @@ const ProtectedRoute = ({ children }) => {
   if (!isAuthenticated) {
     return <Navigate to="/auth" replace />;
   }
+
 
   return children;
 };

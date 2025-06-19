@@ -55,4 +55,5 @@ export const adminAPI = {
   reviewLetter: (letterId, data) =>
     api.put(`/admin/letters/${letterId}/review`, data),
   getPayments: (params = {}) => api.get("/admin/payments", { params }),
+  getAllUsers: (params = {}) => api.get("/admin/users", { params }),
 };

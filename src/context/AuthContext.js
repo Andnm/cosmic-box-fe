@@ -49,17 +49,22 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await api.post('/auth/login', { email, password });
       const { token, user: userData, message } = response.data;
-
       localStorage.setItem('auth_token', token);
       localStorage.setItem('user_data', JSON.stringify(userData));
-      
+      console.log("userData: ", userData)
+
       setUser(userData);
       setIsAuthenticated(true);
       
       // Connect to socket
       socketService.connect(token);
 
-      return { success: true, user: userData, message };
+      return { 
+        success: true, 
+        user: userData, 
+        message,
+        redirectPath: userData.roleName === 'admin' ? '/admin' : '/'
+      };
     } catch (error) {
       console.error('Login failed:', error);
       
@@ -82,7 +87,12 @@ export const AuthProvider = ({ children }) => {
       // Connect to socket
       socketService.connect(token);
 
-      return { success: true, user: newUser, message };
+      return { 
+        success: true, 
+        user: newUser, 
+        message,
+        redirectPath: newUser.roleName === 'admin' ? '/admin' : '/'
+      };
     } catch (error) {
       console.error('Registration failed:', error);
       
@@ -119,6 +129,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const isAdmin = () => {
+    return user?.roleName === 'admin';
+  };
+
+  const isUser = () => {
+    return user?.roleName === 'user';
+  };
+
   const value = {
     user,
     loading,
@@ -126,7 +144,9 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
-    updateProfile
+    updateProfile,
+    isAdmin,
+    isUser
   };
 
   return (

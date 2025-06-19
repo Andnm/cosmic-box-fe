@@ -27,6 +27,14 @@ const Home = () => {
     "Hãy dành thời gian cho những điều bạn yêu thích ❤️",
     "Thành công bắt đầu từ việc tin tưởng vào bản thân 🚀",
     "Hôm nay hãy làm điều gì đó khiến bạn tự hào! 🌈",
+    "Hít thở sâu một chút, mọi chuyện rồi sẽ ổn thôi 🍀",
+    "Cười lên nào, bạn đang làm rất tốt rồi đấy! 😄",
+    "Chậm lại một chút để cảm nhận cuộc sống 🎧",
+    "Không ai là hoàn hảo, bạn chỉ cần cố gắng mỗi ngày 🌱",
+    "Ngẩng đầu lên, chỉnh lại vương miện và tiếp tục bước đi 👑",
+    "Một tách trà và vài phút thư giãn có thể làm nên điều kỳ diệu ☕",
+    "Dù hôm nay có thế nào, bạn vẫn đáng được yêu thương 💛",
+    "Đôi khi, nghỉ ngơi cũng là một phần của tiến bộ 🛌",
   ];
 
   const testimonials = [
@@ -218,7 +226,7 @@ const Home = () => {
             />
 
             <div className="relative z-10">
-              <h1 className="text-8xl lg:text-9xl font-bold text-cosmic-purple mb-16 pearl-jean-style leading-tight">
+              <h1 className="text-6xl lg:text-7xl font-bold text-cosmic-purple mb-16 pearl-jean-style leading-tight">
                 CHÚNG MÌNH LÀ AI?
               </h1>
               <p className="text-cosmic-purple leading-relaxed text-3xl lg:text-4xl max-w-6xl mx-auto mb-20 font-medium">
@@ -264,7 +272,7 @@ const Home = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-7xl lg:text-8xl font-bold text-cosmic-purple mb-20 pearl-jean-style">
+            <h2 className="text-7xl lg:text-7xl font-bold text-cosmic-purple mb-20 pearl-jean-style">
               VIẾT THƯ ĐỂ LÀM GÌ NHỈ?
             </h2>
 
@@ -373,7 +381,7 @@ const Home = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-7xl lg:text-8xl font-bold text-cosmic-purple mb-20 pearl-jean-style">
+            <h2 className="text-7xl lg:text-7xl font-bold text-cosmic-purple mb-20 pearl-jean-style">
               THÔNG ĐIỆP HÔM NAY
             </h2>
 
@@ -437,7 +445,7 @@ const Home = () => {
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-7xl lg:text-8xl font-bold text-cosmic-purple mb-20 pearl-jean-style">
+            <h2 className="text-7xl lg:text-7xl font-bold text-cosmic-purple mb-20 pearl-jean-style">
               VŨ TRỤ CỦA CHÚNG MÌNH
             </h2>
 

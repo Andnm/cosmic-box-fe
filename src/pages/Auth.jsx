@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Star, 
   Sparkles, 
@@ -11,19 +11,29 @@ import {
   Lock, 
   User,
   ArrowRight,
-  ChevronLeft
+  ChevronLeft,
+  Loader
 } from 'lucide-react';
+import { useNotifications } from '../context/NotificationContext';
+import { useAuth } from '../context/AuthContext';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     confirmPassword: '',
-    fullName: ''
+    username: '',
+    phone: ''
   });
+
+  const { login, register } = useAuth();
+  const { addNotification } = useNotifications();
+  const navigate = useNavigate();
 
   const fadeInUp = {
     initial: { opacity: 0, y: 60 },
@@ -36,11 +46,72 @@ const Auth = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    // Clear error when user starts typing
+    if (error) setError('');
   };
 
-  const handleSubmit = (e) => {
+  const validateForm = () => {
+    if (!formData.email || !formData.password) {
+      setError('Vui lòng điền đầy đủ thông tin');
+      return false;
+    }
+
+    if (!isLogin) {
+      if (!formData.username) {
+        setError('Vui lòng nhập tên người dùng');
+        return false;
+      }
+      if (formData.password.length < 6) {
+        setError('Mật khẩu phải có ít nhất 6 ký tự');
+        return false;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setError('Mật khẩu xác nhận không khớp');
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      let result;
+      
+      if (isLogin) {
+        result = await login(formData.email, formData.password);
+      } else {
+        result = await register({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone
+        });
+      }
+
+      if (result.success) {
+        addNotification({
+          type: 'success',
+          title: isLogin ? 'Đăng nhập thành công!' : 'Đăng ký thành công!',
+          content: `Chào mừng ${result.user.username} đến với CosmicBox`
+        });
+        navigate('/');
+      } else {
+        setError(result.error);
+      }
+    } catch (error) {
+      setError('Có lỗi xảy ra, vui lòng thử lại');
+      console.error('Auth error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleAuthMode = () => {
@@ -49,8 +120,10 @@ const Auth = () => {
       email: '',
       password: '',
       confirmPassword: '',
-      fullName: ''
+      username: '',
+      phone: ''
     });
+    setError('');
   };
 
   return (
@@ -89,6 +162,7 @@ const Auth = () => {
             backgroundSize: "20px 20px",
           }}
         >
+          {/* Animated decorations - keeping original code */}
           <motion.div 
             className="absolute top-8 right-8 flex items-center space-x-2"
             animate={{ 
@@ -144,6 +218,7 @@ const Auth = () => {
             />
           </motion.div>
 
+          {/* Other decorative elements - keeping original */}
           <motion.div
             className="absolute top-20 left-16 w-2 h-2 bg-yellow-400 rounded-full opacity-70"
             animate={{ 
@@ -187,6 +262,7 @@ const Auth = () => {
           </motion.div>
 
           <div className="relative z-10 max-w-md mx-auto">
+            {/* Toggle buttons */}
             <div className="flex bg-white/20 backdrop-blur-sm rounded-full p-1 mb-8 border border-white/30">
               <motion.button
                 className={`flex-1 py-3 px-6 rounded-full font-medium transition-all duration-300 relative ${
@@ -227,6 +303,21 @@ const Auth = () => {
               </motion.button>
             </div>
 
+            {/* Error message */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-2xl text-red-800 text-center"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             <AnimatePresence mode="wait">
               <motion.form
                 key={isLogin ? 'login' : 'register'}
@@ -249,9 +340,9 @@ const Auth = () => {
                       <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60" size={20} />
                       <input
                         type="text"
-                        name="fullName"
-                        placeholder="Họ và tên"
-                        value={formData.fullName}
+                        name="username"
+                        placeholder="Tên người dùng"
+                        value={formData.username}
                         onChange={handleInputChange}
                         className="w-full bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl py-4 pl-12 pr-4 text-cosmic-purple placeholder-cosmic-purple/60 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-300"
                         required={!isLogin}
@@ -272,6 +363,28 @@ const Auth = () => {
                     required
                   />
                 </div>
+
+                {!isLogin && (
+                  <motion.div
+                    className="relative"
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3, delay: 0.1 }}
+                  >
+                    <div className="relative">
+                      <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60" size={20} />
+                      <input
+                        type="tel"
+                        name="phone"
+                        placeholder="Số điện thoại"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        className="w-full bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl py-4 pl-12 pr-4 text-cosmic-purple placeholder-cosmic-purple/60 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-300"
+                      />
+                    </div>
+                  </motion.div>
+                )}
 
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60" size={20} />
@@ -299,7 +412,7 @@ const Auth = () => {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3, delay: 0.1 }}
+                    transition={{ duration: 0.3, delay: 0.2 }}
                   >
                     <div className="relative">
                       <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-cosmic-purple/60" size={20} />
@@ -336,12 +449,22 @@ const Auth = () => {
 
                 <motion.button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 rounded-2xl font-semibold text-lg transition-all duration-300 shadow-lg flex items-center justify-center space-x-2"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-white py-4 rounded-2xl font-semibold text-lg transition-all duration-300 shadow-lg flex items-center justify-center space-x-2"
+                  whileHover={{ scale: loading ? 1 : 1.02 }}
+                  whileTap={{ scale: loading ? 1 : 0.98 }}
                 >
-                  <span>{isLogin ? 'ĐĂNG NHẬP' : 'ĐĂNG KÝ'}</span>
-                  <ArrowRight size={20} />
+                  {loading ? (
+                    <>
+                      <Loader className="animate-spin" size={20} />
+                      <span>{isLogin ? 'ĐANG ĐĂNG NHẬP...' : 'ĐANG ĐĂNG KÝ...'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{isLogin ? 'ĐĂNG NHẬP' : 'ĐĂNG KÝ'}</span>
+                      <ArrowRight size={20} />
+                    </>
+                  )}
                 </motion.button>
 
                 {!isLogin && (

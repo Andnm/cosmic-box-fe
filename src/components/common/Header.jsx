@@ -17,7 +17,7 @@ const Header = () => {
 
   const navItems = [
     { path: "/write", label: "VIẾT THƯ", active: "write" },
-    { path: "/inbox", label: "HỘP THƯ", active: "inbox" },
+    { path: "/inbox", label: "HÒM THƯ", active: "inbox" },
     { path: "/archive", label: "LƯU TRỮ", active: "archive" },
   ];
 

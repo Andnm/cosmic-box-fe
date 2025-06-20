@@ -2,25 +2,28 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
-  CreditCard,
-  Smartphone,
-  Wallet,
-  Building,
   Send,
   Heart,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+  User,
 } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { connectionsAPI } from "../services/api"; // Adjust import path as needed
 
 const ConnectPayment = () => {
-  const [selectedPayment, setSelectedPayment] = useState("Bank");
-  const [message, setMessage] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const paymentMethods = [
-    { id: "Bank", label: "Bank", icon: Building },
-    { id: "Momo", label: "Momo", icon: Smartphone },
-    { id: "Zalopay", label: "Zalopay", icon: CreditCard },
-    { id: "VNPAY", label: "VNPAY", icon: Wallet },
-  ];
+  // Get receiver info from navigation state
+  const receiverInfo = location.state?.receiver || null;
+
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(null);
+  const [paymentLink, setPaymentLink] = useState(null);
 
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
@@ -28,18 +31,100 @@ const ConnectPayment = () => {
     transition: { duration: 0.5 },
   };
 
+  const handleSendRequest = async () => {
+    if (!message.trim()) {
+      setError("Vui lòng nhập lời nhắn để gửi yêu cầu kết nối");
+      return;
+    }
+
+    if (!receiverInfo?.id) {
+      setError("Không tìm thấy thông tin người nhận. Vui lòng thử lại.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await connectionsAPI.createRequest({
+        receiverId: receiverInfo.id,
+        message: message.trim(),
+      });
+
+      setSuccess(true);
+      setPaymentLink(response.data.paymentLink.paymentUrl);
+
+      // Show success message for a moment then redirect to payment
+      setTimeout(() => {
+        if (response.data.paymentLink) {
+          // Redirect to payment link
+          window.location.href = response.data.paymentLink.paymentUrl;
+        } else {
+          // If no payment link, go back to inbox
+          navigate("/inbox");
+        }
+      }, 2000);
+    } catch (err) {
+      console.error("Error creating connection request:", err);
+      setError(
+        err.response?.data?.error ||
+          "Không thể gửi yêu cầu kết nối. Vui lòng thử lại sau."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const quickMessages = [
+    "Chào bạn! Mình rất muốn làm quen 🤝",
+    "Câu chuyện của bạn thật cảm động ❤️",
+    "Hy vọng chúng ta có thể trò chuyện nhiều hơn ✨",
+    "Mình cảm thấy chúng ta có nhiều điểm chung 🌟",
+    "Rất mong được chia sẻ và lắng nghe từ bạn 💫",
+  ];
+
+  // If success, show success screen
+  if (success) {
+    return (
+      <div className="min-h-screen py-8 px-6 flex items-center justify-center">
+        <motion.div
+          className="text-center"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
+          <h2 className="text-3xl font-bold text-cosmic-purple mb-4">
+            Yêu cầu kết nối đã được tạo!
+          </h2>
+          <p className="text-cosmic-purple/80 mb-6">
+            {paymentLink
+              ? "Đang chuyển hướng đến trang thanh toán..."
+              : "Yêu cầu của bạn đã được gửi thành công!"}
+          </p>
+          {loading && (
+            <Loader2 className="w-8 h-8 animate-spin text-cosmic-purple mx-auto" />
+          )}
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen py-8 px-6">
       <div className="max-w-4xl mx-auto">
         <motion.div className="flex items-center mb-8" {...fadeInUp}>
           <button className="mr-4">
-            <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-300">
+            <div
+              className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center hover:bg-white/30 transition-all duration-300"
+              onClick={() => navigate("/inbox")}
+            >
               <ArrowLeft className="text-cosmic-purple" size={20} />
             </div>
           </button>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 gap-12">
           <motion.div
             className="space-y-8"
             initial={{ opacity: 0, x: -50 }}
@@ -52,103 +137,63 @@ const ConnectPayment = () => {
               </h1>
               <p className="text-cosmic-purple/80 leading-relaxed">
                 Để có thể kết nối với trò chuyện với người gửi thư thì bạn cần
-                trở phí để gửi cho họ yêu cầu kết nối với bạn nhé!
+                trả phí để gửi cho họ yêu cầu kết nối với bạn nhé!
               </p>
+
+              {/* Show receiver info if available */}
+              {receiverInfo && (
+                <motion.div
+                  className="mt-6 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/30"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <div className="flex items-center justify-center space-x-3">
+                    <User className="text-cosmic-purple" size={20} />
+                    <span className="text-cosmic-purple font-medium">
+                      Gửi yêu cầu kết nối đến:{" "}
+                      {receiverInfo.username || "Người dùng"}
+                    </span>
+                  </div>
+                </motion.div>
+              )}
             </div>
 
-            <div className="bg-white/20 backdrop-blur-md rounded-2xl p-8 border border-white/30">
-              <div className="text-center mb-6">
-                <div className="w-60 h-60 mx-auto bg-white rounded-xl p-4 shadow-lg flex justify-center items-center">
-                  <QRCodeSVG
-                    value="https://cosmicbox.example.com/connect/123456"
-                    size={180}
-                    level="M"
-                    includeMargin={false}
-                  />
-                </div>
-              </div>
-              <h2 className="text-2xl font-bold text-cosmic-purple text-center mb-4">
-                QUÉT TỚ NHÉ!
-              </h2>
-            </div>
-          </motion.div>
-
-          <motion.div
-            className="space-y-6"
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <div>
-              <h2 className="text-xl font-bold text-cosmic-purple mb-6">
-                LỰA CHỌN HÌNH THỨC THANH TOÁN NÈ
-              </h2>
-              <div className="space-y-3">
-                {paymentMethods.map((method) => {
-                  const IconComponent = method.icon;
-                  return (
-                    <motion.div
-                      key={method.id}
-                      className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
-                        selectedPayment === method.id
-                          ? "bg-white/20 border-blue-400 backdrop-blur-md"
-                          : "bg-white/10 border-white/20 hover:bg-white/15"
-                      }`}
-                      onClick={() => setSelectedPayment(method.id)}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div
-                          className={`w-5 h-5 rounded-full border-2 ${
-                            selectedPayment === method.id
-                              ? "border-blue-400 bg-blue-400"
-                              : "border-cosmic-purple/50"
-                          }`}
-                        >
-                          {selectedPayment === method.id && (
-                            <div className="w-full h-full rounded-full bg-white/30"></div>
-                          )}
-                        </div>
-                        <IconComponent
-                          className="text-cosmic-purple"
-                          size={20}
-                        />
-                        <span className="text-cosmic-purple font-medium">
-                          {method.label}
-                        </span>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="space-y-2">
-                  <p className="text-cosmic-purple/70">STK: 1381****</p>
-                  <p className="text-cosmic-purple/70">
-                    Tên Tài Khoản: ************
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-cosmic-purple/70">
-                    Nội Dung Chuyển Khoản:
-                  </p>
-                  <p className="text-cosmic-purple font-medium">
-                    COSMICBOX-PHI CONTACT
-                  </p>
-                </div>
-              </div>
-              <p className="text-xs text-cosmic-purple/60 mt-4 italic">
-                *Kiểm tra thật kĩ thông tin tài khoản trước khi thực hiện giao
-                dịch nhé cả nhà yêu!*
-              </p>
-            </div>
+            {/* Show error if any */}
+            {error && (
+              <motion.div
+                className="bg-red-100/20 border border-red-300/30 rounded-2xl p-4 flex items-center space-x-3"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <AlertCircle className="text-red-400" size={20} />
+                <span className="text-red-400">{error}</span>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </div>
+
+      <motion.div
+        className="mt-8 bg-blue-50/10 backdrop-blur-sm rounded-2xl p-6 border border-blue-200/30 max-w-4xl mx-auto"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+      >
+        <div className="text-center">
+          <h4 className="text-lg font-semibold text-cosmic-purple mb-2">
+            💰 Phí kết nối
+          </h4>
+          <p className="text-cosmic-purple/80 text-sm mb-3">
+            Phí để gửi yêu cầu kết nối là{" "}
+            <span className="font-bold text-blue-600">20.000 VNĐ</span>
+          </p>
+          <p className="text-cosmic-purple/60 text-xs">
+            Sau khi gửi yêu cầu, bạn sẽ được chuyển đến trang thanh toán để hoàn
+            tất quá trình.
+          </p>
+        </div>
+      </motion.div>
 
       <motion.div
         className="max-w-4xl mx-auto mt-12"
@@ -190,6 +235,7 @@ const ConnectPayment = () => {
                 placeholder="Xin chào! Mình rất đồng cảm với câu chuyện của bạn và hy vọng chúng ta có thể kết nối với nhau. Rất mong được làm quen nhé! 🌟"
                 className="w-full h-32 bg-transparent text-cosmic-purple placeholder-cosmic-purple/50 resize-none outline-none text-lg leading-relaxed"
                 maxLength={500}
+                disabled={loading}
               />
             </div>
 
@@ -199,13 +245,23 @@ const ConnectPayment = () => {
               </span>
 
               <motion.button
-                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 flex items-center space-x-2 shadow-lg"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                disabled={!message.trim()}
+                onClick={handleSendRequest}
+                className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 flex items-center space-x-2 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                whileHover={!loading && !message.trim() ? {} : { scale: 1.05 }}
+                whileTap={!loading && !message.trim() ? {} : { scale: 0.95 }}
+                disabled={loading || !message.trim()}
               >
-                <Send size={16} />
-                <span>GỬI THƯ</span>
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin" size={16} />
+                    <span>ĐANG GỬI...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send size={16} />
+                    <span>GỬI YÊU CẦU</span>
+                  </>
+                )}
               </motion.button>
             </div>
           </div>
@@ -215,23 +271,22 @@ const ConnectPayment = () => {
               Gợi ý tin nhắn nhanh:
             </p>
             <div className="flex flex-wrap gap-2 justify-center">
-              {[
-                "Chào bạn! Mình rất muốn làm quen 🤝",
-                "Câu chuyện của bạn thật cảm động ❤️",
-                "Hy vọng chúng ta có thể trò chuyện nhiều hơn ✨",
-              ].map((template, index) => (
+              {quickMessages.map((template, index) => (
                 <motion.button
                   key={index}
                   onClick={() => setMessage(template)}
-                  className="bg-white/10 hover:bg-white/20 text-cosmic-purple px-4 py-2 rounded-full text-sm transition-all duration-300 border border-white/20"
+                  className="bg-white/10 hover:bg-white/20 text-cosmic-purple px-4 py-2 rounded-full text-sm transition-all duration-300 border border-white/20 disabled:opacity-50"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
+                  disabled={loading}
                 >
                   {template}
                 </motion.button>
               ))}
             </div>
           </div>
+
+          {/* Fee information */}
         </div>
       </motion.div>
     </div>

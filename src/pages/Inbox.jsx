@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ChevronLeft,
@@ -8,10 +8,12 @@ import {
   MoreHorizontal,
   Star,
   Calendar,
+  Loader2,
 } from "lucide-react";
 import LetterModal from "../components/ui/LetterModal";
 import ChatModal from "../components/ui/ChatModal";
 import { useNavigate } from "react-router-dom";
+import { lettersAPI } from "../services/api"; // Adjust import path as needed
 
 const Inbox = () => {
   const navigate = useNavigate();
@@ -21,6 +23,16 @@ const Inbox = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedChat, setSelectedChat] = useState(null);
   const [selectedMenu, setSelectedMenu] = useState(null);
+  
+  // API related states
+  const [receivedLetters, setReceivedLetters] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    total: 0,
+  });
 
   const tabs = [
     { id: "received", label: "THƯ ĐÃ NHẬN", color: "bg-blue-500" },
@@ -28,33 +40,7 @@ const Inbox = () => {
     { id: "chat", label: "TRÒ CHUYỆN", color: "bg-purple-600" },
   ];
 
-  const letters = [
-    {
-      id: 1,
-      type: "received",
-      title: "CHATBOX 1",
-      preview: "User1: Chào bạn",
-      date: "01/09",
-      senderColors: ["bg-pink-400", "bg-blue-400"],
-    },
-    {
-      id: 2,
-      type: "received",
-      title: "CHATBOX 2",
-      preview: "User1: Rất vui được làm quen với bạn",
-      date: "09/03",
-      senderColors: ["bg-pink-400", "bg-blue-400"],
-    },
-    {
-      id: 3,
-      type: "received",
-      title: "CHATBOX 3",
-      preview: "User1: Chào bạn",
-      date: "08/02",
-      senderColors: ["bg-pink-400", "bg-purple-600"],
-    },
-  ];
-
+  // Static data for other tabs (notifications and chat)
   const notifications = [
     {
       id: 1,
@@ -92,9 +78,70 @@ const Inbox = () => {
     },
   ];
 
+  // Fetch received letters from API
+  const fetchReceivedLetters = async (page = 1, limit = 10) => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const response = await lettersAPI.getReceivedLetters({ page, limit });
+      
+      setReceivedLetters(response.data.letters);
+      setPagination({
+        currentPage: response.data.currentPage,
+        totalPages: response.data.totalPages,
+        total: response.data.total,
+      });
+    } catch (err) {
+      console.error("Error fetching received letters:", err);
+      setError("Không thể tải thư. Vui lòng thử lại sau.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load received letters when component mounts or when switching to received tab
+  useEffect(() => {
+    if (activeTab === "received") {
+      fetchReceivedLetters();
+    }
+  }, [activeTab]);
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+    });
+  };
+
+  // Transform API data to match component structure
+  const transformLetterData = (apiLetter) => ({
+    id: apiLetter._id,
+    type: "received",
+    title: `THƯ TỪ ${apiLetter.senderId?.username || "Người dùng"}`,
+    preview: apiLetter.content?.substring(0, 50) + "..." || "Nội dung thư...",
+    date: formatDate(apiLetter.sentAt || apiLetter.createdAt),
+    senderColors: ["bg-pink-400", "bg-blue-400"], // Default colors
+    fullContent: apiLetter.content,
+    sender: apiLetter.senderId,
+    sentAt: apiLetter.sentAt,
+    createdAt: apiLetter.createdAt,
+    // Add any other fields that might be useful
+    status: apiLetter.status,
+    adminReviewStatus: apiLetter.adminReviewStatus,
+  });
+
   const handleLetterClick = (letter) => {
     setSelectedLetter(letter);
     setShowModal(true);
+  };
+
+  const handleLoadMore = () => {
+    if (pagination.currentPage < pagination.totalPages) {
+      fetchReceivedLetters(pagination.currentPage + 1);
+    }
   };
 
   const fadeInUp = {
@@ -104,14 +151,14 @@ const Inbox = () => {
   };
 
   const getNotificationNumber = (tabId) => {
-    if (tabId === "received") return 1;
+    if (tabId === "received") return receivedLetters.length > 0 ? 1 : 0;
     if (tabId === "notifications") return 1;
     return 0;
   };
 
   const handleAcceptConnection = () => {
     setShowModal(false);
-    navigate("/connect-payment");
+    // Navigation will be handled by LetterModal itself
   };
 
   const handleChatClick = (chat) => {
@@ -127,7 +174,7 @@ const Inbox = () => {
       <div className="max-w-6xl mx-auto">
         <motion.div className="text-center mb-8" {...fadeInUp}>
           <h1 className="text-3xl font-bold text-cosmic-purple mb-8">
-            HỘP THƯ
+            HÒM THƯ
           </h1>
         </motion.div>
 
@@ -169,49 +216,108 @@ const Inbox = () => {
         >
           {activeTab === "received" && (
             <div className="space-y-4">
-              {letters.map((letter, index) => (
-                <motion.div
-                  key={letter.id}
-                  className="bg-white/20 backdrop-blur-md rounded-xl p-6 border border-white/30 cursor-pointer hover:bg-white/30 transition-all duration-300"
-                  onClick={() => handleLetterClick(letter)}
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex space-x-2">
-                        {letter.senderColors.map((color, idx) => (
-                          <div
-                            key={idx}
-                            className={`w-8 h-8 ${color} rounded-full`}
-                          >
-                            <Star className="w-full h-full p-1 text-white" />
+              {loading && (
+                <div className="flex justify-center items-center py-8">
+                  <Loader2 className="w-8 h-8 animate-spin text-cosmic-purple" />
+                  <span className="ml-2 text-cosmic-purple">Đang tải...</span>
+                </div>
+              )}
+
+              {error && (
+                <div className="text-center py-8">
+                  <p className="text-red-400 mb-4">{error}</p>
+                  <button
+                    onClick={() => fetchReceivedLetters()}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full transition-colors duration-300"
+                  >
+                    Thử lại
+                  </button>
+                </div>
+              )}
+
+              {!loading && !error && receivedLetters.length === 0 && (
+                <div className="text-center py-8">
+                  <p className="text-cosmic-purple/70">
+                    Bạn chưa có thư nào được nhận.
+                  </p>
+                </div>
+              )}
+
+              {!loading && !error && receivedLetters.length > 0 && (
+                <>
+                  {receivedLetters.map((apiLetter, index) => {
+                    const letter = transformLetterData(apiLetter);
+                    return (
+                      <motion.div
+                        key={letter.id}
+                        className="bg-white/20 backdrop-blur-md rounded-xl p-6 border border-white/30 cursor-pointer hover:bg-white/30 transition-all duration-300"
+                        onClick={() => handleLetterClick(letter)}
+                        initial={{ opacity: 0, x: -50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                        whileHover={{ scale: 1.02 }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className="flex space-x-2">
+                              {letter.senderColors.map((color, idx) => (
+                                <div
+                                  key={idx}
+                                  className={`w-8 h-8 ${color} rounded-full`}
+                                >
+                                  <Star className="w-full h-full p-1 text-white" />
+                                </div>
+                              ))}
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-cosmic-purple">
+                                {letter.title}
+                              </h3>
+                              <p className="text-cosmic-purple/70 text-sm">
+                                {letter.preview}
+                              </p>
+                            </div>
                           </div>
-                        ))}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-cosmic-purple">
-                          {letter.title}
-                        </h3>
-                        <p className="text-cosmic-purple/70 text-sm">
-                          {letter.preview}
-                        </p>
-                      </div>
+                          <div className="flex items-center space-x-4">
+                            <span className="text-cosmic-purple/60 text-sm">
+                              {letter.date}
+                            </span>
+                            <MoreHorizontal
+                              className="text-cosmic-purple/50"
+                              size={20}
+                            />
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+
+                  {/* Load More Button */}
+                  {pagination.currentPage < pagination.totalPages && (
+                    <div className="text-center py-4">
+                      <button
+                        onClick={handleLoadMore}
+                        disabled={loading}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-full transition-colors duration-300 disabled:opacity-50"
+                      >
+                        {loading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
+                            Đang tải...
+                          </>
+                        ) : (
+                          "Tải thêm"
+                        )}
+                      </button>
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <span className="text-cosmic-purple/60 text-sm">
-                        {letter.date}
-                      </span>
-                      <MoreHorizontal
-                        className="text-cosmic-purple/50"
-                        size={20}
-                      />
-                    </div>
+                  )}
+
+                  {/* Pagination Info */}
+                  <div className="text-center text-cosmic-purple/60 text-sm">
+                    Hiển thị {receivedLetters.length} / {pagination.total} thư
                   </div>
-                </motion.div>
-              ))}
+                </>
+              )}
             </div>
           )}
 
@@ -399,7 +505,6 @@ const Inbox = () => {
         <LetterModal
           letter={selectedLetter}
           onClose={() => setShowModal(false)}
-          onAccept={handleAcceptConnection}
         />
       )}
 

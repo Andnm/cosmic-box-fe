@@ -22,12 +22,10 @@ class SocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log('Socket connected:', this.socket.id);
       this.isConnected = true;
     });
 
     this.socket.on('disconnect', () => {
-      console.log('Socket disconnected');
       this.isConnected = false;
     });
 

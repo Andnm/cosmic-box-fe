@@ -14,7 +14,6 @@ const Header = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-console.log("user: ", user)
   const navItems = [
     { path: "/write", label: "VIẾT THƯ", active: "write" },
     { path: "/inbox", label: "HÒM THƯ", active: "inbox" },
@@ -256,7 +255,10 @@ console.log("user: ", user)
                       <span>Trang cá nhân</span>
                     </Link> */}
                     <button
-                      onClick={handleLogout}
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        handleLogout();
+                      }}
                       className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-red-50 transition-colors text-red-600"
                     >
                       <LogOut size={16} />

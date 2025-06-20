@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import socketService from '../config/socket';
 import { useAuth } from './AuthContext';
 
@@ -15,17 +15,31 @@ export const useNotifications = () => {
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  
+  // Dùng useRef để track user trước đó
+  const prevUserRef = useRef(null);
 
   useEffect(() => {
     if (isAuthenticated) {
+      // Nếu user thay đổi (logout -> login user khác), clear notifications
+      if (prevUserRef.current && prevUserRef.current.id !== user?.id) {
+        clearNotifications();
+      }
+      
+      prevUserRef.current = user;
       setupSocketListeners();
+    } else {
+      // Khi logout (isAuthenticated = false), clear notifications
+      clearNotifications();
+      prevUserRef.current = null;
+      cleanupSocketListeners();
     }
 
     return () => {
       cleanupSocketListeners();
     };
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user?.id]);
 
   const setupSocketListeners = () => {
     socketService.onNewNotification(handleNewNotification);

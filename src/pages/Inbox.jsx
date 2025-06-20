@@ -20,9 +20,11 @@ import {
   connectionsAPI,
   chatAPI,
 } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 const Inbox = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [activeTab, setActiveTab] = useState("received");
   const [selectedLetter, setSelectedLetter] = useState(null);
@@ -362,6 +364,7 @@ const Inbox = () => {
     }
     return 0;
   };
+
   const transformConversationData = (apiConversation) => {
     // Find the other participant (not current user)
     const otherParticipant = apiConversation.participants?.find(
@@ -384,9 +387,9 @@ const Inbox = () => {
         ? {
             text: apiConversation.lastMessage.content,
             sender:
-              apiConversation.lastMessage.senderId === currentUserId
+              apiConversation.lastMessage.senderId._id === currentUserId
                 ? "me"
-                : "them",
+                : "they",
             time: formatTime(apiConversation.lastMessage.createdAt),
             isRead: apiConversation.lastMessage.isRead,
           }
@@ -416,12 +419,8 @@ const Inbox = () => {
   const [currentUserId, setCurrentUserId] = useState(null);
 
   useEffect(() => {
-    // Replace with your actual auth logic
-    const userId =
-      localStorage.getItem("currentUserId") ||
-      JSON.parse(localStorage.getItem("user"))?.id ||
-      "USER_ID_HERE";
-    setCurrentUserId(userId);
+
+    setCurrentUserId(user?._id);
   }, []);
 
   const handleAcceptConnection = () => {
@@ -983,6 +982,7 @@ const Inbox = () => {
                                 {conversation.lastMessage ? (
                                   <>
                                     <span className="font-medium text-white/90">
+                                      
                                       {conversation.lastMessage.sender === "me"
                                         ? "Bạn: "
                                         : `${

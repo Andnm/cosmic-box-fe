@@ -3,8 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Send, X, MessageSquare, Loader2 } from "lucide-react";
 import { chatAPI } from "../../services/api";
 import socketService from "../../config/socket";
+import { useAuth } from "../../context/AuthContext";
 
 const ChatModal = ({ chat: initialChat, onClose }) => {
+  const { user } = useAuth(); 
+  const currentUserId = user?._id; 
   const [message, setMessage] = useState("");
   const [selectedChat, setSelectedChat] = useState(initialChat);
   const [chats, setChats] = useState([]);
@@ -13,23 +16,16 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
   const [sendingMessage, setSendingMessage] = useState(false);
   const [error, setError] = useState(null);
   const [typingUsers, setTypingUsers] = useState({});
-  const [currentUserId, setCurrentUserId] = useState(null);
-  
+
   const messagesEndRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
-  // Get current user ID (you'll need to implement this based on your auth system)
-  useEffect(() => {
-    // Replace this with your actual current user ID logic
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const userId = user._id || user.id || localStorage.getItem('currentUserId');
-    setCurrentUserId(userId);
-  }, []);
-
   // Fetch conversations
   useEffect(() => {
-    fetchConversations();
-  }, []);
+    if (currentUserId) {
+      fetchConversations();
+    }
+  }, [currentUserId]);
 
   // Load messages for selected chat
   useEffect(() => {
@@ -37,7 +33,7 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
       fetchMessages(selectedChat.conversationId);
       joinConversation(selectedChat.conversationId);
     }
-    
+
     return () => {
       if (selectedChat?.conversationId) {
         leaveConversation(selectedChat.conversationId);
@@ -52,9 +48,9 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
     socketService.onMessageRead(handleMessageRead);
 
     return () => {
-      socketService.off('newMessage', handleNewMessage);
-      socketService.off('userTyping', handleUserTyping);
-      socketService.off('messageRead', handleMessageRead);
+      socketService.off("newMessage", handleNewMessage);
+      socketService.off("userTyping", handleUserTyping);
+      socketService.off("messageRead", handleMessageRead);
     };
   }, []);
 
@@ -68,24 +64,36 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
       setLoading(true);
       const response = await chatAPI.getConversations();
       const conversations = response.data.conversations || response.data;
-      
-      const transformedChats = conversations.map(conv => {
+
+      const transformedChats = conversations.map((conv) => {
         // Find the other participant (not current user)
-        const otherParticipant = conv.participants?.find(
-          p => p.userId?._id !== currentUserId && p.userId?._id !== undefined
-        );
-        
+        const otherParticipant = conv.participants?.find((p) => {
+          const participantId = p.userId?._id || p.userId;
+          const isCurrentUser =
+            participantId &&
+            participantId.toString() === currentUserId?.toString();
+          return !isCurrentUser;
+        });
+
         // Safe access to participant data
         const participantUser = otherParticipant?.userId;
-        const participantName = participantUser?.username || 
-                               participantUser?.email?.split('@')[0] || 
-                               'Người dùng';
-        
+        const participantName =
+          typeof participantUser === "string"
+            ? "Người dùng" // If participantUser is just an ID
+            : participantUser?.username ||
+              participantUser?.email?.split("@")[0] ||
+              "Người dùng";
+
         // Calculate unread count
-        const unreadCount = conv.lastMessage?.isRead === false && 
-                           conv.lastMessage?.senderId !== currentUserId ? 1 : 0;
-        
-        return {
+        const lastMessageSenderId =
+          conv.lastMessage?.senderId?._id || conv.lastMessage?.senderId;
+        const unreadCount =
+          conv.lastMessage?.isRead === false &&
+          lastMessageSenderId?.toString() !== currentUserId?.toString()
+            ? 1
+            : 0;
+
+        const result = {
           id: conv._id,
           conversationId: conv._id,
           title: participantName,
@@ -97,15 +105,18 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
           chatboxName: conv.chatboxName,
           isActive: conv.isActive !== false,
         };
+
+        return result;
       });
-      
+
       setChats(transformedChats);
-      
+
       // If initial chat provided and exists in list, select it
       if (initialChat) {
-        const matchingChat = transformedChats.find(chat => 
-          chat.conversationId === initialChat.conversationId || 
-          chat.id === initialChat.id
+        const matchingChat = transformedChats.find(
+          (chat) =>
+            chat.conversationId === initialChat.conversationId ||
+            chat.id === initialChat.id
         );
         if (matchingChat) {
           setSelectedChat(matchingChat);
@@ -116,8 +127,8 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
         setSelectedChat(transformedChats[0]);
       }
     } catch (error) {
-      console.error('Error fetching conversations:', error);
-      setError('Không thể tải danh sách cuộc trò chuyện');
+      console.error("Error fetching conversations:", error);
+      setError("Không thể tải danh sách cuộc trò chuyện");
     } finally {
       setLoading(false);
     }
@@ -125,26 +136,34 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
 
   const fetchMessages = async (conversationId, page = 1) => {
     try {
-      const response = await chatAPI.getMessages(conversationId, { page, limit: 50 });
+      const response = await chatAPI.getMessages(conversationId, {
+        page,
+        limit: 50,
+      });
       const fetchedMessages = response.data.messages || response.data;
-      
-      const transformedMessages = fetchedMessages.map(msg => ({
-        id: msg._id,
-        text: msg.content,
-        sender: msg.senderId?._id === currentUserId ? "me" : "them",
-        senderName: msg.senderId?.username || "Người dùng",
-        time: formatTime(msg.createdAt),
-        isRead: msg.isRead,
-        createdAt: msg.createdAt,
-      }));
-      
-      setMessages(prev => ({
+
+      const transformedMessages = fetchedMessages.map((msg) => {
+        const senderId = msg.senderId?._id || msg.senderId;
+        const isMyMessage = senderId?.toString() === currentUserId?.toString();
+
+        return {
+          id: msg._id,
+          text: msg.content,
+          sender: isMyMessage ? "me" : "them",
+          senderName: msg.senderId?.username || "Người dùng",
+          time: formatTime(msg.createdAt),
+          isRead: msg.isRead,
+          createdAt: msg.createdAt,
+        };
+      });
+
+      setMessages((prev) => ({
         ...prev,
-        [conversationId]: transformedMessages
+        [conversationId]: transformedMessages,
       }));
     } catch (error) {
-      console.error('Error fetching messages:', error);
-      setError('Không thể tải tin nhắn');
+      console.error("Error fetching messages:", error);
+      setError("Không thể tải tin nhắn");
     }
   };
 
@@ -156,9 +175,9 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
     setSendingMessage(true);
     try {
       const response = await chatAPI.sendMessage(selectedChat.conversationId, {
-        content: message.trim()
+        content: message.trim(),
       });
-      
+
       const newMessage = response.data.data;
       const transformedMessage = {
         id: newMessage._id,
@@ -169,30 +188,30 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
         isRead: newMessage.isRead,
         createdAt: newMessage.createdAt,
       };
-      
+
       // Add message to local state
-      setMessages(prev => ({
-        ...prev,
-        [selectedChat.conversationId]: [
-          ...(prev[selectedChat.conversationId] || []),
-          transformedMessage
-        ]
-      }));
-      
+      // setMessages((prev) => ({
+      //   ...prev,
+      //   [selectedChat.conversationId]: [
+      //     ...(prev[selectedChat.conversationId] || []),
+      //     transformedMessage,
+      //   ],
+      // }));
+
       // Update chat list
-      setChats(prev => 
-        prev.map(chat => 
-          chat.conversationId === selectedChat.conversationId 
-            ? { ...chat, lastMessage: message.trim(), unread: 0 } 
+      setChats((prev) =>
+        prev.map((chat) =>
+          chat.conversationId === selectedChat.conversationId
+            ? { ...chat, lastMessage: message.trim(), unread: 0 }
             : chat
         )
       );
-      
+
       setMessage("");
       stopTyping();
     } catch (error) {
-      console.error('Error sending message:', error);
-      setError('Không thể gửi tin nhắn');
+      console.error("Error sending message:", error);
+      setError("Không thể gửi tin nhắn");
     } finally {
       setSendingMessage(false);
     }
@@ -202,21 +221,19 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
     if (selectedChat?.conversationId) {
       leaveConversation(selectedChat.conversationId);
     }
-    
+
     setSelectedChat(chat);
-    
+
     // Mark messages as read
     try {
       await chatAPI.markAsRead(chat.conversationId);
-      setChats(prev => 
-        prev.map(c => 
-          c.conversationId === chat.conversationId 
-            ? { ...c, unread: 0 } 
-            : c
+      setChats((prev) =>
+        prev.map((c) =>
+          c.conversationId === chat.conversationId ? { ...c, unread: 0 } : c
         )
       );
     } catch (error) {
-      console.error('Error marking messages as read:', error);
+      console.error("Error marking messages as read:", error);
     }
   };
 
@@ -239,23 +256,26 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
       createdAt: newMessage.createdAt,
     };
 
-    setMessages(prev => ({
+    setMessages((prev) => ({
       ...prev,
       [newMessage.conversationId]: [
         ...(prev[newMessage.conversationId] || []),
-        transformedMessage
-      ]
+        transformedMessage,
+      ],
     }));
 
     // Update chat list
-    setChats(prev => 
-      prev.map(chat => 
-        chat.conversationId === newMessage.conversationId 
-          ? { 
-              ...chat, 
+    setChats((prev) =>
+      prev.map((chat) =>
+        chat.conversationId === newMessage.conversationId
+          ? {
+              ...chat,
               lastMessage: newMessage.content,
-              unread: newMessage.senderId?._id !== currentUserId ? chat.unread + 1 : 0
-            } 
+              unread:
+                newMessage.senderId?._id !== currentUserId
+                  ? chat.unread + 1
+                  : 0,
+            }
           : chat
       )
     );
@@ -264,19 +284,19 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
   const handleUserTyping = ({ userId, username, isTyping, conversationId }) => {
     if (userId === currentUserId) return;
 
-    setTypingUsers(prev => ({
+    setTypingUsers((prev) => ({
       ...prev,
-      [conversationId]: isTyping ? { userId, username } : null
+      [conversationId]: isTyping ? { userId, username } : null,
     }));
   };
 
   const handleMessageRead = ({ messageId, readBy }) => {
     if (readBy === currentUserId) return;
 
-    setMessages(prev => {
+    setMessages((prev) => {
       const updatedMessages = {};
-      Object.keys(prev).forEach(convId => {
-        updatedMessages[convId] = prev[convId].map(msg => 
+      Object.keys(prev).forEach((convId) => {
+        updatedMessages[convId] = prev[convId].map((msg) =>
           msg.id === messageId ? { ...msg, isRead: true } : msg
         );
       });
@@ -287,12 +307,12 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
   const startTyping = () => {
     if (selectedChat?.conversationId) {
       socketService.sendTyping(selectedChat.conversationId, true);
-      
+
       // Clear existing timeout
       if (typingTimeoutRef.current) {
         clearTimeout(typingTimeoutRef.current);
       }
-      
+
       // Stop typing after 3 seconds of inactivity
       typingTimeoutRef.current = setTimeout(() => {
         stopTyping();
@@ -304,7 +324,7 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
     if (selectedChat?.conversationId) {
       socketService.sendTyping(selectedChat.conversationId, false);
     }
-    
+
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
       typingTimeoutRef.current = null;
@@ -318,14 +338,14 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
 
   const formatTime = (dateString) => {
     if (!dateString) return "";
-    
+
     try {
-      return new Date(dateString).toLocaleTimeString([], { 
-        hour: '2-digit', 
-        minute: '2-digit' 
+      return new Date(dateString).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
       });
     } catch (error) {
-      console.error('Error formatting time:', error);
+      console.error("Error formatting time:", error);
       return "";
     }
   };
@@ -341,11 +361,12 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
     }
   };
 
-  const currentMessages = selectedChat?.conversationId ? 
-    messages[selectedChat.conversationId] || [] : [];
+  const currentMessages = selectedChat?.conversationId
+    ? messages[selectedChat.conversationId] || []
+    : [];
 
-  const isTyping = selectedChat?.conversationId && 
-    typingUsers[selectedChat.conversationId];
+  const isTyping =
+    selectedChat?.conversationId && typingUsers[selectedChat.conversationId];
 
   return (
     <AnimatePresence>
@@ -376,19 +397,21 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
             <div className="w-1/3 border-r border-white/10 bg-gradient-to-b from-indigo-900/20 to-transparent p-4 overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
-                  <button 
-                    onClick={onClose} 
+                  <button
+                    onClick={onClose}
                     className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-all"
                   >
                     <ChevronLeft size={20} className="text-white/80" />
                   </button>
-                  <h3 className="font-bold text-xl text-white">Danh sách chat</h3>
+                  <h3 className="font-bold text-xl text-white">
+                    Danh sách chat
+                  </h3>
                 </div>
                 <div className="w-8 h-8 bg-purple-500/20 rounded-full flex items-center justify-center">
                   <MessageSquare size={16} className="text-purple-400" />
                 </div>
               </div>
-              
+
               {loading ? (
                 <div className="flex justify-center py-8">
                   <Loader2 className="w-6 h-6 animate-spin text-white/60" />
@@ -400,8 +423,8 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
                       key={chat.id}
                       className={`relative p-3 rounded-xl cursor-pointer transition-all ${
                         selectedChat?.id === chat.id
-                          ? 'bg-gradient-to-r from-purple-500/30 to-transparent border border-purple-500/30'
-                          : 'hover:bg-white/10'
+                          ? "bg-gradient-to-r from-purple-500/30 to-transparent border border-purple-500/30"
+                          : "hover:bg-white/10"
                       }`}
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.98 }}
@@ -423,8 +446,12 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-white truncate">{chat.title || "Người dùng"}</p>
-                          <p className="text-sm text-white/60 truncate">{chat.lastMessage || "Chưa có tin nhắn"}</p>
+                          <p className="font-medium text-white truncate">
+                            {chat.title || "Người dùng"}
+                          </p>
+                          <p className="text-sm text-white/60 truncate">
+                            {chat.lastMessage || "Chưa có tin nhắn"}
+                          </p>
                         </div>
                         <div className="text-xs text-white/40">
                           {chat.updatedAt ? formatTime(chat.updatedAt) : ""}
@@ -449,7 +476,9 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
                         </span>
                       </div>
                       <div>
-                        <p className="font-bold text-white">{selectedChat.title || "Người dùng"}</p>
+                        <p className="font-bold text-white">
+                          {selectedChat.title || "Người dùng"}
+                        </p>
                         <p className="text-sm text-white/60 flex items-center">
                           <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
                           Đang hoạt động
@@ -461,10 +490,14 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
                   {/* Messages */}
                   <div className="flex-1 p-4 overflow-y-auto bg-gradient-to-b from-transparent via-purple-900/10 to-transparent">
                     <div className="space-y-4">
-                      {currentMessages.map((msg) => (
+                      {currentMessages.map((msg, index) => (
                         <motion.div
-                          key={msg.id}
-                          className={`flex ${msg.sender === "me" ? "justify-end" : "justify-start"}`}
+                          key={index}
+                          className={`flex ${
+                            msg.sender === "me"
+                              ? "justify-end"
+                              : "justify-start"
+                          }`}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                         >
@@ -478,9 +511,13 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
                             >
                               {msg.text}
                             </div>
-                            <p className={`text-xs mt-1 flex items-center ${
-                              msg.sender === "me" ? "text-white/50 justify-end" : "text-white/40"
-                            }`}>
+                            <p
+                              className={`text-xs mt-1 flex items-center ${
+                                msg.sender === "me"
+                                  ? "text-white/50 justify-end"
+                                  : "text-white/40"
+                              }`}
+                            >
                               <span>{msg.time}</span>
                               {msg.sender === "me" && (
                                 <span className="ml-2">
@@ -491,7 +528,7 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
                           </div>
                         </motion.div>
                       ))}
-                      
+
                       {/* Typing indicator */}
                       {isTyping && (
                         <motion.div
@@ -502,13 +539,19 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
                           <div className="bg-white/10 text-white p-3 rounded-2xl">
                             <div className="flex space-x-1">
                               <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce"></div>
-                              <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                              <div className="w-2 h-2 bg-white/60 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                              <div
+                                className="w-2 h-2 bg-white/60 rounded-full animate-bounce"
+                                style={{ animationDelay: "0.1s" }}
+                              ></div>
+                              <div
+                                className="w-2 h-2 bg-white/60 rounded-full animate-bounce"
+                                style={{ animationDelay: "0.2s" }}
+                              ></div>
                             </div>
                           </div>
                         </motion.div>
                       )}
-                      
+
                       <div ref={messagesEndRef} />
                     </div>
                   </div>
@@ -546,8 +589,13 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
                     <div className="w-20 h-20 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                       <MessageSquare size={32} className="text-white/40" />
                     </div>
-                    <h3 className="text-xl font-medium text-white/80 mb-2">Chọn một cuộc trò chuyện</h3>
-                    <p className="text-white/50">Nhấn vào bất kỳ cuộc trò chuyện nào trong danh sách để bắt đầu chat</p>
+                    <h3 className="text-xl font-medium text-white/80 mb-2">
+                      Chọn một cuộc trò chuyện
+                    </h3>
+                    <p className="text-white/50">
+                      Nhấn vào bất kỳ cuộc trò chuyện nào trong danh sách để bắt
+                      đầu chat
+                    </p>
                   </div>
                 </div>
               )}

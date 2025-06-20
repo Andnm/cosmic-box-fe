@@ -14,7 +14,7 @@ const Header = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-
+console.log("user: ", user)
   const navItems = [
     { path: "/write", label: "VIẾT THƯ", active: "write" },
     { path: "/inbox", label: "HÒM THƯ", active: "inbox" },

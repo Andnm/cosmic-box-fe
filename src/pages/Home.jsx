@@ -230,11 +230,7 @@ const Home = () => {
                 CHÚNG MÌNH LÀ AI?
               </h1>
               <p className="text-cosmic-purple leading-relaxed text-3xl lg:text-4xl max-w-6xl mx-auto mb-20 font-medium">
-                Chúng mình là CosmicBox - Hòm thư vũ trụ. Chúng mình ở đây với
-                mục tiêu mang đến một nơi an toàn, một nền tảng cho phép người
-                dùng gửi và nhận thư ẩn danh để bạn có thể dễ dàng bày tỏ cảm
-                xúc, câu chuyện của bản thân một cách thoải mái mà không sợ bị
-                đánh giá. Đừng ngại chia sẻ với chúng mình nhé!
+                Cosmic Box là hòm thư ẩn danh nơi bạn có thể trút hết tâm tư mà không sợ bị phán xét
               </p>
 
               <div className="flex flex-col lg:flex-row gap-8 justify-center">
@@ -357,12 +353,7 @@ const Home = () => {
                       <Heart className="text-pink-500 fill-current" size={64} />
                     </h3>
                     <p className="text-cosmic-purple/90 leading-relaxed text-2xl lg:text-3xl max-w-6xl mx-auto font-medium">
-                      Có những chuyện không dễ nói cùng ai, sợ bị phán xét hay
-                      khó có được sự đồng cảm. Bạn cần một nơi để trút bỏ muộn
-                      phiền, giúp bạn nhẹ lòng hơn? Có Cosmic Box ở đây với bạn,
-                      đây là góc nhỏ dành riêng cho bạn để lắng nghe và được
-                      lắng nghe. Hãy để mỗi lá thư trở thành một bước nhỏ giúp
-                      bạn vượt qua những muộn phiền trong lòng.
+                      Để giải bày những điều khó nói, và thấy lòng nhẹ hơn một chút
                     </p>
                   </motion.div>
                 </div>

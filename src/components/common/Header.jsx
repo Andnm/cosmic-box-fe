@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, User, LogOut, Settings, Menu, X } from "lucide-react";
+import { Bell, User, LogOut, Settings, Menu, X, Crown } from "lucide-react";
 import logoCosmicBox from "../../assets/images/logo-cosmic.png";
 import { useAuth } from "../../context/AuthContext";
 import { useNotifications } from "../../context/NotificationContext";
@@ -14,16 +14,19 @@ const Header = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  
   const navItems = [
     { path: "/write", label: "VIẾT THƯ", active: "write" },
     { path: "/inbox", label: "HÒM THƯ", active: "inbox" },
     { path: "/archive", label: "LƯU TRỮ", active: "archive" },
+    { path: "/membership", label: "MEMBERSHIP", active: "membership" },
   ];
 
   const getActiveTab = () => {
     if (location.pathname.includes("write")) return "write";
     if (location.pathname.includes("inbox")) return "inbox";
     if (location.pathname.includes("archive")) return "archive";
+    if (location.pathname.includes("membership")) return "membership";
     return "";
   };
 
@@ -116,13 +119,16 @@ const Header = () => {
                 />
               )}
               <span
-                className={`relative z-10 ${
+                className={`relative z-10 flex items-center space-x-1 ${
                   getActiveTab() === item.active
                     ? "text-cosmic-purple"
                     : "text-white"
                 }`}
               >
-                {item.label}
+                <span>{item.label}</span>
+                {item.active === "membership" && (
+                  <Crown size={16} className="text-yellow-400" />
+                )}
               </span>
             </Link>
           ))}
@@ -233,7 +239,12 @@ const Header = () => {
               className="flex items-center space-x-2 p-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300"
             >
               <User size={20} />
-              <span className="text-sm font-medium">{user?.username}</span>
+              <div className="flex items-center space-x-1">
+                <span className="text-sm font-medium">{user?.username}</span>
+                {user?.membership === 'vip' && (
+                  <Crown size={16} className="text-yellow-400" />
+                )}
+              </div>
             </button>
 
             <AnimatePresence>
@@ -246,14 +257,20 @@ const Header = () => {
                   transition={{ duration: 0.2 }}
                 >
                   <div className="p-2">
-                    {/* <Link
-                      to="/profile"
-                      className="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-cosmic-purple/10 transition-colors text-cosmic-purple"
+                    <Link
+                      to="/membership"
                       onClick={() => setShowUserMenu(false)}
+                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-yellow-50 transition-colors text-cosmic-purple"
                     >
-                      <Settings size={16} />
-                      <span>Trang cá nhân</span>
-                    </Link> */}
+                      <Crown size={16} className="text-yellow-500" />
+                      <span>Membership</span>
+                      {user?.membership === 'vip' && (
+                        <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">
+                          VIP
+                        </span>
+                      )}
+                    </Link>
+                    
                     <button
                       onClick={() => {
                         setShowUserMenu(false);
@@ -295,21 +312,29 @@ const Header = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`block px-4 py-3 rounded-xl transition-colors ${
+                  className={`flex items-center justify-between px-4 py-3 rounded-xl transition-colors ${
                     getActiveTab() === item.active
                       ? "bg-cosmic-purple text-white"
                       : "text-cosmic-purple hover:bg-cosmic-purple/10"
                   }`}
                   onClick={() => setShowMobileMenu(false)}
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  {item.active === "membership" && (
+                    <Crown size={16} className="text-yellow-400" />
+                  )}
                 </Link>
               ))}
               <div className="border-t border-cosmic-purple/20 pt-2 mt-4">
                 <div className="flex items-center justify-between px-4 py-2">
-                  <span className="text-cosmic-purple font-medium truncate">
-                    {user?.username}
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-cosmic-purple font-medium truncate">
+                      {user?.username}
+                    </span>
+                    {user?.membership === 'vip' && (
+                      <Crown size={16} className="text-yellow-400" />
+                    )}
+                  </div>
                   <div className="flex items-center space-x-2">
                     <button
                       onClick={() => {

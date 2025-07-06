@@ -1,5 +1,14 @@
 import api from "../config/api";
 
+// Users API
+export const usersAPI = {
+  getMyProfile: () => api.get("/users/profile"),
+  updateMyProfile: (data) => api.put(`/users/profile`, data),
+  upgradeVip: () => api.post("/users/upgrade-vip"),
+  getMembership: () => api.get("/users/membership"),
+  getPaymentHistory: () => api.get("/users/payment-history"),
+};
+
 // Letters API
 export const lettersAPI = {
   create: (content, status = "draft") =>

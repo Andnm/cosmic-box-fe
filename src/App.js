@@ -17,6 +17,7 @@ import "./App.css";
 import { AuthProvider } from "./context/AuthContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import AdminLayout from "./components/common/AdminLayout";
+import MembershipPage from "./pages/MembershipPage";
 
 function App() {
   return (
@@ -51,6 +52,17 @@ function App() {
                   <Layout>
                     <ProtectedRoute>
                       <Inbox />
+                    </ProtectedRoute>
+                  </Layout>
+                }
+              />
+
+              <Route
+                path="/membership"
+                element={
+                  <Layout>
+                    <ProtectedRoute>
+                      <MembershipPage />
                     </ProtectedRoute>
                   </Layout>
                 }

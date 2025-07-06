@@ -35,7 +35,20 @@ export const AuthProvider = ({ children }) => {
         socketService.connect(token);
         
         // Verify token is still valid
-        await api.get('/auth/profile');
+         try {
+          const response = await api.get('/auth/profile');
+          const { user: refreshedUser } = response.data;
+          
+          // Cập nhật user data mới từ server
+          localStorage.setItem('user_data', JSON.stringify(refreshedUser));
+          setUser(refreshedUser);
+          
+          console.log('User data refreshed successfully');
+        } catch (profileError) {
+          console.error('Failed to refresh user profile:', profileError);
+          // Nếu verify token thất bại, logout user
+          logout();
+        }
       }
     } catch (error) {
       console.error('Auth initialization failed:', error);

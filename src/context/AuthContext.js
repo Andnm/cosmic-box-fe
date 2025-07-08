@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Login failed:', error);
       
-      const message = error.response?.data?.details?.[0]?.msg || error.response?.data?.msg || error.response?.data?.error || 'Đăng nhập thất bại';
+      const message = error.response?.data?.details?.[0]?.msg || error.response?.data?.msg || error.response?.data?.error || error.response?.message ||'Đăng nhập thất bại';
       return { success: false, error: message };
     }
   };

@@ -12,7 +12,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-gradient-to-br from-blue-800 via-purple-800 to-fuchsia-800 text-white py-8 px-6 relative overflow-hidden">
+    <footer className="mt-10 bg-gradient-to-br from-blue-800 via-purple-800 to-fuchsia-800 text-white py-8 px-6 relative overflow-hidden">
       <div className="absolute inset-0 opacity-20">
         {[...Array(20)].map((_, i) => (
           <div

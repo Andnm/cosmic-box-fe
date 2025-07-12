@@ -68,14 +68,24 @@ const Footer = () => {
               LIÊN HỆ VỚI CHÚNG MÌNH
             </h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-center space-x-3 bg-black/20 backdrop-blur-sm rounded-lg px-4 py-3 border border-blue-600/30 hover:border-blue-400 transition-all">
+              <a 
+                href="https://www.facebook.com/cosmicbox.vn" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-center space-x-3 bg-black/20 backdrop-blur-sm rounded-lg px-4 py-3 border border-blue-600/30 hover:border-blue-400 transition-all cursor-pointer"
+              >
                 <Facebook size={18} className="text-blue-300" />
                 <span className="font-medium">COSMICBOX</span>
-              </div>
-              <div className="flex items-center justify-center space-x-3 bg-black/20 backdrop-blur-sm rounded-lg px-4 py-3 border border-purple-600/30 hover:border-purple-400 transition-all">
+              </a>
+              <a 
+                href="https://www.instagram.com/cosmicboxvn/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center justify-center space-x-3 bg-black/20 backdrop-blur-sm rounded-lg px-4 py-3 border border-purple-600/30 hover:border-purple-400 transition-all cursor-pointer"
+              >
                 <Instagram size={18} className="text-pink-300" />
                 <span className="font-medium">COSMICBOX</span>
-              </div>
+              </a>
               <div className="flex items-center justify-center space-x-3 bg-black/20 backdrop-blur-sm rounded-lg px-4 py-3 border border-fuchsia-600/30 hover:border-fuchsia-400 transition-all">
                 <Mail size={18} className="text-cyan-300" />
                 <span className="font-medium">cosmicbox@gmail.com</span>

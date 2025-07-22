@@ -447,7 +447,7 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-white truncate">
-                            {chat.title || "Người dùng"}
+                            {"Ai đó"}
                           </p>
                           <p className="text-sm text-white/60 truncate">
                             {chat.lastMessage || "Chưa có tin nhắn"}
@@ -477,7 +477,7 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
                       </div>
                       <div>
                         <p className="font-bold text-white">
-                          {selectedChat.title || "Người dùng"}
+                          {"Ai đó"}
                         </p>
                         <p className="text-sm text-white/60 flex items-center">
                           <span className="w-2 h-2 bg-green-400 rounded-full mr-2"></span>

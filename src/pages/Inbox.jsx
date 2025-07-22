@@ -62,22 +62,6 @@ const Inbox = () => {
     { id: "chat", label: "TRÒ CHUYỆN", color: "bg-purple-600" },
   ];
 
-  // Static data for chat (only chat remains static)
-  const archiveLetters = [
-    {
-      id: 1,
-      senderName: "Nguyễn Văn A",
-      lastMessage: {
-        text: "Bạn có khỏe không?",
-        sender: "them",
-        time: "10:30 AM",
-      },
-      lastMessageTime: "10:30 AM",
-      unreadCount: 2,
-      isOnline: true,
-      date: "05/06/2025",
-    },
-  ];
 
   // Fetch conversations from API
   const fetchConversations = async () => {
@@ -234,7 +218,7 @@ const Inbox = () => {
   const transformLetterData = (apiLetter) => ({
     id: apiLetter._id,
     type: "received",
-    title: `THƯ TỪ ${apiLetter.senderId?.username || "Người dùng"}`,
+    title: `THƯ TỪ người nào đó`,
     preview: apiLetter.content?.substring(0, 50) + "..." || "Nội dung thư...",
     date: formatDate(apiLetter.sentAt || apiLetter.createdAt),
     senderColors: ["bg-pink-400", "bg-blue-400"], // Default colors
@@ -277,7 +261,7 @@ const Inbox = () => {
         // Show rejection modal instead of direct rejection
         const notification = notifications.find((n) => n.id === notificationId);
         const senderName =
-          notification?.connectionRequest?.senderId?.username || "Người dùng";
+          "Ai đó";
 
         setPendingRejection({ notificationId, relatedId, senderName });
         setShowRejectionModal(true);
@@ -374,25 +358,25 @@ const Inbox = () => {
     // Calculate unread count from last message
     const unreadCount =
       apiConversation.lastMessage?.isRead === false &&
-      apiConversation.lastMessage?.senderId !== currentUserId
+        apiConversation.lastMessage?.senderId !== currentUserId
         ? 1
         : 0;
 
     return {
       id: apiConversation._id,
       conversationId: apiConversation._id,
-      senderName: otherParticipant?.userId?.username || "Người dùng",
+      senderName: "Ai đó",
       chatboxName: apiConversation.chatboxName,
       lastMessage: apiConversation.lastMessage
         ? {
-            text: apiConversation.lastMessage.content,
-            sender:
-              apiConversation.lastMessage.senderId._id === currentUserId
-                ? "me"
-                : "they",
-            time: formatTime(apiConversation.lastMessage.createdAt),
-            isRead: apiConversation.lastMessage.isRead,
-          }
+          text: apiConversation.lastMessage.content,
+          sender:
+            apiConversation.lastMessage.senderId._id === currentUserId
+              ? "me"
+              : "they",
+          time: formatTime(apiConversation.lastMessage.createdAt),
+          isRead: apiConversation.lastMessage.isRead,
+        }
         : null,
       lastMessageTime: apiConversation.lastMessage
         ? formatTime(apiConversation.lastMessage.createdAt)
@@ -456,11 +440,10 @@ const Inbox = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative px-6 py-3 rounded-t-2xl font-medium transition-all duration-300 ${
-                  activeTab === tab.id
+                className={`relative px-6 py-3 rounded-t-2xl font-medium transition-all duration-300 ${activeTab === tab.id
                     ? `${tab.color} text-white shadow-lg`
                     : "bg-white/10 text-cosmic-purple hover:bg-white/20"
-                }`}
+                  }`}
               >
                 {getNotificationNumber(tab.id) > 0 && (
                   <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
@@ -631,11 +614,10 @@ const Inbox = () => {
                       return (
                         <motion.div
                           key={notification.id}
-                          className={`bg-white/20 backdrop-blur-md rounded-xl p-6 border border-white/30 cursor-pointer hover:bg-white/30 transition-all duration-300 ${
-                            !notification.isRead
+                          className={`bg-white/20 backdrop-blur-md rounded-xl p-6 border border-white/30 cursor-pointer hover:bg-white/30 transition-all duration-300 ${!notification.isRead
                               ? "ring-2 ring-blue-400/50"
                               : ""
-                          }`}
+                            }`}
                           onClick={() =>
                             !notification.isRead &&
                             handleMarkAsRead(notification.id)
@@ -672,29 +654,28 @@ const Inbox = () => {
                                 notification.type === "connection_request" && (
                                   <div className="mt-2">
                                     <span
-                                      className={`text-xs px-2 py-1 rounded-full ${
-                                        notification.connectionRequestStatus ===
-                                        "accepted"
+                                      className={`text-xs px-2 py-1 rounded-full ${notification.connectionRequestStatus ===
+                                          "accepted"
                                           ? "bg-green-100 text-green-700"
                                           : notification.connectionRequestStatus ===
                                             "rejected"
-                                          ? "bg-red-100 text-red-700"
-                                          : notification.connectionRequestStatus ===
-                                            "pending"
-                                          ? "bg-yellow-100 text-yellow-700"
-                                          : "bg-gray-100 text-gray-700"
-                                      }`}
+                                            ? "bg-red-100 text-red-700"
+                                            : notification.connectionRequestStatus ===
+                                              "pending"
+                                              ? "bg-yellow-100 text-yellow-700"
+                                              : "bg-gray-100 text-gray-700"
+                                        }`}
                                     >
                                       {notification.connectionRequestStatus ===
-                                      "accepted"
+                                        "accepted"
                                         ? "Đã chấp nhận"
                                         : notification.connectionRequestStatus ===
                                           "rejected"
-                                        ? "Đã từ chối"
-                                        : notification.connectionRequestStatus ===
-                                          "pending"
-                                        ? "Đang chờ phản hồi"
-                                        : notification.connectionRequestStatus}
+                                          ? "Đã từ chối"
+                                          : notification.connectionRequestStatus ===
+                                            "pending"
+                                            ? "Đang chờ phản hồi"
+                                            : notification.connectionRequestStatus}
                                     </span>
                                   </div>
                                 )}
@@ -703,35 +684,34 @@ const Inbox = () => {
                               {!notification.connectionRequestStatus && (
                                 <div className="mt-2">
                                   <span
-                                    className={`text-xs px-2 py-1 rounded-full ${
-                                      notification.type === "connection_request"
+                                    className={`text-xs px-2 py-1 rounded-full ${notification.type === "connection_request"
                                         ? "bg-green-100 text-green-700"
                                         : notification.type ===
                                           "request_accepted"
-                                        ? "bg-blue-100 text-blue-700"
-                                        : notification.type ===
-                                          "request_rejected"
-                                        ? "bg-red-100 text-red-700"
-                                        : notification.type === "new_letter"
-                                        ? "bg-purple-100 text-purple-700"
-                                        : "bg-gray-100 text-gray-700"
-                                    }`}
+                                          ? "bg-blue-100 text-blue-700"
+                                          : notification.type ===
+                                            "request_rejected"
+                                            ? "bg-red-100 text-red-700"
+                                            : notification.type === "new_letter"
+                                              ? "bg-purple-100 text-purple-700"
+                                              : "bg-gray-100 text-gray-700"
+                                      }`}
                                   >
                                     {notification.type === "connection_request"
                                       ? "Yêu cầu kết nối"
                                       : notification.type === "request_accepted"
-                                      ? "Chấp nhận kết nối"
-                                      : notification.type === "request_rejected"
-                                      ? "Từ chối kết nối"
-                                      : notification.type === "new_letter"
-                                      ? "Thư mới"
-                                      : notification.type === "new_message"
-                                      ? "Tin nhắn mới"
-                                      : notification.type === "letter_approved"
-                                      ? "Thư được duyệt"
-                                      : notification.type === "letter_rejected"
-                                      ? "Thư bị từ chối"
-                                      : "Thông báo"}
+                                        ? "Chấp nhận kết nối"
+                                        : notification.type === "request_rejected"
+                                          ? "Từ chối kết nối"
+                                          : notification.type === "new_letter"
+                                            ? "Thư mới"
+                                            : notification.type === "new_message"
+                                              ? "Tin nhắn mới"
+                                              : notification.type === "letter_approved"
+                                                ? "Thư được duyệt"
+                                                : notification.type === "letter_rejected"
+                                                  ? "Thư bị từ chối"
+                                                  : "Thông báo"}
                                   </span>
                                 </div>
                               )}
@@ -776,23 +756,23 @@ const Inbox = () => {
                     {/* Load More Notifications Button */}
                     {notificationsPagination.currentPage <
                       notificationsPagination.totalPages && (
-                      <div className="text-center py-4">
-                        <button
-                          onClick={handleLoadMoreNotifications}
-                          disabled={notificationsLoading}
-                          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-full transition-colors duration-300 disabled:opacity-50"
-                        >
-                          {notificationsLoading ? (
-                            <>
-                              <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
-                              Đang tải...
-                            </>
-                          ) : (
-                            "Tải thêm thông báo"
-                          )}
-                        </button>
-                      </div>
-                    )}
+                        <div className="text-center py-4">
+                          <button
+                            onClick={handleLoadMoreNotifications}
+                            disabled={notificationsLoading}
+                            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-full transition-colors duration-300 disabled:opacity-50"
+                          >
+                            {notificationsLoading ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
+                                Đang tải...
+                              </>
+                            ) : (
+                              "Tải thêm thông báo"
+                            )}
+                          </button>
+                        </div>
+                      )}
 
                     {/* Mark all as read button */}
                     {notifications.some((n) => !n.isRead) && (
@@ -952,7 +932,7 @@ const Inbox = () => {
                           <div className="flex items-center space-x-3">
                             <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center relative">
                               <span className="text-white font-medium">
-                                {(conversation.senderName || "U")
+                                {(conversation.senderName || "Ai đó")
                                   .charAt(0)
                                   .toUpperCase()}
                               </span>
@@ -966,8 +946,7 @@ const Inbox = () => {
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="font-medium text-white truncate">
-                                {conversation.senderName ||
-                                  `Người dùng ${conversation.id}`}
+                                {"Ai đó"}
                               </p>
                               <p className="text-sm text-white/60">
                                 {conversation.lastMessageTime ||
@@ -982,14 +961,13 @@ const Inbox = () => {
                                 {conversation.lastMessage ? (
                                   <>
                                     <span className="font-medium text-white/90">
-                                      
+
                                       {conversation.lastMessage.sender === "me"
                                         ? "Bạn: "
-                                        : `${
-                                            conversation.senderName?.split(
-                                              " "
-                                            )[0] || "Người dùng"
-                                          }: `}
+                                        : `${conversation.senderName?.split(
+                                          " "
+                                        )[0] || "Ai đó"
+                                        }: `}
                                     </span>
                                     {conversation.lastMessage.text}
                                   </>
@@ -1039,7 +1017,6 @@ const Inbox = () => {
         <ChatModal chat={selectedChat} onClose={handleCloseChat} />
       )}
 
-      {/* Rejection Modal */}
       <RejectionModal
         isOpen={showRejectionModal}
         onClose={() => {

@@ -434,7 +434,7 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
                         <div className="relative">
                           <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center">
                             <span className="text-white font-medium">
-                              {(chat.title || "U").charAt(0).toUpperCase()}
+                              {("A").charAt(0).toUpperCase()}
                             </span>
                           </div>
                           {chat.unread > 0 && (
@@ -472,7 +472,7 @@ const ChatModal = ({ chat: initialChat, onClose }) => {
                     <div className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center">
                         <span className="text-white font-medium">
-                          {(selectedChat.title || "U").charAt(0).toUpperCase()}
+                          {( "A").charAt(0).toUpperCase()}
                         </span>
                       </div>
                       <div>

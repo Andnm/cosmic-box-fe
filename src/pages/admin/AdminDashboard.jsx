@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  Users, 
-  Mail, 
-  Clock, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Users,
+  Mail,
+  Clock,
+  CheckCircle,
+  XCircle,
   CreditCard,
   DollarSign,
-  TrendingUp
+  TrendingUp,
+  Crown
 } from 'lucide-react';
-import { adminAPI } from '../../services/api'; 
+import { adminAPI } from '../../services/api';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -31,7 +32,7 @@ const AdminDashboard = () => {
       setLoading(false);
     }
   };
-
+  //totalVipUsers
   const statCards = [
     {
       title: 'Tổng người dùng',
@@ -41,19 +42,20 @@ const AdminDashboard = () => {
       bgColor: 'bg-blue-500/20'
     },
     {
+      title: 'Người dùng VIP',
+      value: stats?.totalVipUsers || 0,
+      icon: Crown,
+      color: 'from-yellow-500 to-yellow-600',
+      bgColor: 'bg-yellow-500/20'
+    },
+    {
       title: 'Tổng số thư',
       value: stats?.totalLetters || 0,
       icon: Mail,
       color: 'from-purple-500 to-purple-600',
       bgColor: 'bg-purple-500/20'
     },
-    {
-      title: 'Thư chờ duyệt',
-      value: stats?.pendingLetters || 0,
-      icon: Clock,
-      color: 'from-yellow-500 to-yellow-600',
-      bgColor: 'bg-yellow-500/20'
-    },
+
     {
       title: 'Thư đã duyệt',
       value: stats?.approvedLetters || 0,
@@ -127,7 +129,7 @@ const AdminDashboard = () => {
                 </div>
                 <div className={`w-12 h-1 bg-gradient-to-r ${card.color} rounded-full`}></div>
               </div>
-              
+
               <div>
                 <p className="text-white/70 text-sm font-medium">{card.title}</p>
                 <p className="text-2xl font-bold text-white mt-1">{card.value}</p>

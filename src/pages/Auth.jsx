@@ -88,7 +88,6 @@ const Auth = () => {
       if (isLogin) {
         result = await login(formData.email, formData.password);
 
-        console.log("result: ", result);
       } else {
         result = await register({
           username: formData.username,
